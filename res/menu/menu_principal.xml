@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <menu 
+        xmlns:android="http://schemas.android.com/apk/res/android">
+        
+        <item android:id="@+id/MenuMensajes" android:title="Mensajes"
+			  android:icon="@drawable/ic_menu_dialog"></item>
+		<item android:id="@+id/MenuServidores" android:title="Servidores"
+			  android:icon="@drawable/ic_menu_globe"></item>
+		<item android:id="@+id/MenuServicios" android:title="Servicios"
+			  android:icon="@drawable/ic_menu_database"></item>
+    </menu>

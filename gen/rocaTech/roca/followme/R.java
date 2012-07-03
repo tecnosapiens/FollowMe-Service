@@ -8,16 +8,70 @@
 package rocaTech.roca.followme;
 
 public final class R {
+    public static final class array {
+        public static final int updateInterval=0x7f060000;
+        public static final int updateIntervalPanic=0x7f060002;
+        public static final int updateIntervalValues=0x7f060001;
+        public static final int updateIntervalValuesPanic=0x7f060003;
+    }
     public static final class attr {
     }
+    public static final class color {
+        public static final int panicColor=0x7f070000;
+        public static final int relaxColor=0x7f070001;
+    }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
+        public static final int ic_button_go=0x7f020000;
+        public static final int ic_button_stop=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int ic_menu_database=0x7f020003;
+        public static final int ic_menu_dialog=0x7f020004;
+        public static final int ic_menu_exit=0x7f020005;
+        public static final int ic_menu_globe=0x7f020006;
+    }
+    public static final class id {
+        public static final int BtnKillApli=0x7f0a0002;
+        public static final int BtnPanico=0x7f0a0000;
+        public static final int MenuMensajes=0x7f0a0003;
+        public static final int MenuServicios=0x7f0a0005;
+        public static final int MenuServidores=0x7f0a0004;
+        public static final int output=0x7f0a0001;
     }
     public static final class layout {
         public static final int main=0x7f030000;
     }
+    public static final class menu {
+        public static final int menu_principal=0x7f090000;
+    }
+    public static final class raw {
+        public static final int braincandy=0x7f050000;
+    }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int hello=0x7f040000;
+        public static final int app_name=0x7f080001;
+        /**      Variables de Menu 
+  Menu de Configuracion de Mensajes de Posicion 
+         */
+        public static final int configuracion_envio_mensajes=0x7f080002;
+        /**  Menu de Configuracion de Mensajes de registro de Servidores de Posicion 
+         */
+        public static final int configuracion_registro_servidores=0x7f080007;
+        public static final int hello=0x7f080000;
+        public static final int label_killApli=0x7f080010;
+        public static final int mensaje_con_panico=0x7f080005;
+        public static final int mensaje_sin_panico=0x7f080003;
+        public static final int num_servidor_dos=0x7f08000d;
+        public static final int num_servidor_tres=0x7f08000e;
+        public static final int num_servidor_uno=0x7f08000c;
+        public static final int registro_id_dispositivo=0x7f08000a;
+        public static final int registro_servidor=0x7f080008;
+        public static final int resumen_mensaje_con_panico=0x7f080006;
+        public static final int resumen_mensaje_sin_panico=0x7f080004;
+        public static final int resumen_registro_id_dispositivo=0x7f08000b;
+        public static final int resumen_registro_servidor=0x7f080009;
+        public static final int tituloBtnPanico=0x7f08000f;
+    }
+    public static final class xml {
+        public static final int prefmensajes=0x7f040000;
+        public static final int prefservidores=0x7f040001;
     }
 }

@@ -4,9 +4,38 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="fill_parent"
+    <ToggleButton
+        android:id="@+id/BtnPanico"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:layout_gravity="center"
+        android:layout_weight="0.25"
+        android:background="@drawable/ic_button_go"
+        android:text="@string/tituloBtnPanico"
+        android:textColor="#000000"
+        android:textOff="S.O.S\nNO Activo"
+        android:textOn="S.O.S\nActivado" />
+
+    <TextView
+        android:id="@+id/output"
+        android:layout_width="fill_parent"
+        android:layout_height="78dp"
+        android:layout_margin="5dip"
+        android:layout_weight="0.00"
+        android:background="#aaaaaa"
+        android:scrollbars="vertical"
+        android:textColor="#000000"
+        android:visibility="visible" />
+
+
+
+
+
+    <Button
+        android:id="@+id/BtnKillApli"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.06"
+        android:text="@string/label_killApli" />
 
 </LinearLayout>

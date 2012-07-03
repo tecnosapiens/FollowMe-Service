@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android" >
+		<PreferenceCategory
+	        android:title="Alta Servidor"
+	        android:key="primer_servidor">
+	 
+	        <EditTextPreference
+	            android:key="servidor1"
+	            android:title="Alta Servidor 1"
+	            android:summary="Ingrese numero telefonico Servidor1"
+	            android:dialogTitle="Alta Servidor Posicion"
+	            android:dialogMessage="Numero Servidor Uno"   
+	            android:defaultValue="" />
+	 
+	    </PreferenceCategory>
+
+
+	</PreferenceScreen>

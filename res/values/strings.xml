@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, FollowMeActivity!</string>
-    <string name="app_name">FollowMe-Service</string>
+    <string name="hello">FollowMe-Client ROCA en Geolocalizacion</string>
+    <string name="app_name">FollowMe</string>
+    
+<!--     Variables de Menu -->
+<!--  Menu de Configuracion de Mensajes de Posicion -->
+	<string name="configuracion_envio_mensajes">Configuracion de Envio de Mensajes de Posicion</string>
+	
+    <string name="mensaje_sin_panico">Envio Mensaje Sin Panico</string>
+    <string name="resumen_mensaje_sin_panico">Desea enviar Mensajes de Posicion periodico sin panico</string>
+    
+    <string name="mensaje_con_panico">Envio Mensaje en Panico</string>
+    <string name="resumen_mensaje_con_panico">Elija el tiempo para envio Mensajes de Posicion con panico </string>
+    
 
+    <!-- Menu de Configuracion de Mensajes de registro de Servidores de Posicion -->
+    <string name="configuracion_registro_servidores">Servidores Recepcion Posicion</string>
+    
+    <string name="registro_servidor">Registrar un Servidor</string>
+    <string name="resumen_registro_servidor">Ingresar un Servidor de Recepcion de Posicion</string>
+      
+    <string name="registro_id_dispositivo">Registrar ID Dispositivo</string>
+    <string name="resumen_registro_id_dispositivo">Ingrese ID Dispositivo (actualmente es su numero telefonico) </string>
+    <string name="num_servidor_uno">-1</string>
+    <string name="num_servidor_dos">-1</string>
+    <string name="num_servidor_tres">-1</string>
+    <string name="tituloBtnPanico">S.O.S</string>
+    <string name="label_killApli">Parar Aplicacion</string>
+    
+    
 </resources>

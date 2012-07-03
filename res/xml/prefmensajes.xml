@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+ <PreferenceCategory
+	        android:title="Mensajes Sin Panico"
+	        android:key="first_category">
+	        <CheckBoxPreference
+	            android:key="enviar_mensajes_sin_panico"
+	            android:summary="Permitir Enviar Mensajes sin panico"
+	            android:title="Permitir Envio"
+	            android:defaultValue="false"
+	        />
+	         
+	        <ListPreference
+	            android:key="tiempo_envio_mensaje_sin_panico"
+	            android:title="Tiempo Envio"
+	            android:summary="Definir tiempo envio mensajes sin panico"
+	            android:defaultValue="1"
+	            android:entries="@array/updateInterval"
+	            android:entryValues="@array/updateIntervalValues"
+	            android:dependency="enviar_mensajes_sin_panico"
+	        />   
+	             
+	    </PreferenceCategory>
+	 
+	    <PreferenceCategory
+	        android:title="Mensajes con Panico"
+	        android:key="second_category">
+	 
+<!-- 	        <CheckBoxPreference -->
+<!-- 	            android:key="perform_updates_panic" -->
+<!-- 	            android:summary="Enable or disable data updates" -->
+<!-- 	            android:title="Enable updates" -->
+<!-- 	            android:defaultValue="true" -->
+<!-- 	            android:enabled="true" -->
+<!-- 	        /> -->
+	         
+	        <ListPreference
+	            android:key="tiempo_envio_mensajes_panico"
+	            android:title="Tiempo Envio"
+	            android:summary="Definir tiempo envio mensajes con panico"
+	            android:defaultValue="10"
+	            android:entries="@array/updateIntervalPanic"
+	            android:entryValues="@array/updateIntervalValuesPanic"
+	            android:enabled="true"
+	        />   
+	        
+<!-- 	        <EditTextPreference -->
+<!-- 	            android:key="welcome_message" -->
+<!--              android:title="Welcome Message" -->
+<!-- 	            android:summary="Define the Welcome message to be shown" -->
+<!-- 	            android:dialogTitle="Welcome Message" -->
+<!-- 	            android:dialogMessage="Provide a message"    -->
+<!-- 	            android:defaultValue="Default welcome message" /> -->
+	 
+	    </PreferenceCategory>
+	     
+	</PreferenceScreen>
+
+

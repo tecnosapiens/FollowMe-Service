@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<resources>
+	 
+	    <string-array name="updateInterval">
+	        <item name="5">Cada 5 minuto</item>
+	        <item name="10">Cada 10 minutos</item>
+	        <item name="15">Cada 15 minutos</item>
+	        <item name="20">Cada 20 minutos</item>
+	        <item name="30">Cada 30 minutes</item>
+	    </string-array>
+	     
+	    <string-array name="updateIntervalValues">
+	        <item name="5">300000</item>
+	        <item name="10">600000</item>
+	        <item name="15">900000</item>
+	        <item name="20">1200000</item>
+	        <item name="30">1800000</item>
+	    </string-array>
+	    
+	     <string-array name="updateIntervalPanic">
+	        <item name="0.5">Cada 0.5 minutos</item>
+	        <item name="1">Cada 1 minuto</item>
+	        <item name="2">Cada 2 minutos</item>
+	        <item name="3">Cada 3 minutos</item>
+	        <item name="4">Cada 4 minutos</item>
+	        <item name="5">Cada 5 minutos</item>
+	        <item name="6">Cada 6 minutos</item>
+	    </string-array>
+	     
+	    <string-array name="updateIntervalValuesPanic">
+	        <item name="0.5">30000</item>
+	        <item name="1">60000</item>
+	        <item name="2">120000</item>
+	        <item name="3">180000</item>
+	        <item name="4">240000</item>
+	        <item name="5">300000</item>
+	        <item name="6">360000</item>
+	    </string-array>
+	 
+	</resources>
+
+
