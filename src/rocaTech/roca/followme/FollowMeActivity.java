@@ -171,6 +171,7 @@ public class FollowMeActivity extends Activity
 		
     public void iniciarServicioLocalizacion()
     {
+    	Log.d(TAG, "iniciarServicioLocalizacion: se va llamar a iniciar");
     	 startService(new Intent(this, LocationService.class));
     }
     

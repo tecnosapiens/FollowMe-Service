@@ -60,7 +60,7 @@ public class LocationService extends Service implements LocationListener
 	Calendar calendario;
 	
 	
-	private static final String TAG = "MyService";
+	private static final String TAG = "Myservice";
 	MediaPlayer player;
 	
 	public IBinder onBind(Intent intent) {
@@ -126,17 +126,17 @@ public class LocationService extends Service implements LocationListener
 	
 	public void onProviderDisabled(String provider)
 	{
-		Log.d("\nProvider disabled: ", provider);
+		Log.d(TAG, "Provider disabled: " + provider);
 	}
 	
 	public void onProviderEnabled(String provider) 
 	{
-		Log.d("\nProvider enabled: " , provider);
+		Log.d(TAG, "Provider enabled: " + provider);
 	}
 	
 	public void onStatusChanged(String provider, int status,Bundle extras)
 	{
-		Log.d("\nProvider status changed: " , provider);
+		Log.d(TAG, "Provider status changed: " + provider);
 		
 	}
 	
@@ -153,6 +153,7 @@ public class LocationService extends Service implements LocationListener
 			
 			/** send Message Geographics Position from Client**/
 			//phone = "5554"; //2292423424";
+			Log.d(TAG, "en dumplocation");
 			message = "\nROCA: " + location.toString();// esta a punto de terminar programa de localizacion de personas. Esto es una prueba";
 			message = createPosGeoMSN(location).toString();
 			sendSMSMonitor(servidores[0], message);
@@ -184,7 +185,7 @@ public class LocationService extends Service implements LocationListener
 //			{
 //				tipoMensaje = "OK";
 //			}
-			
+			Log.d(TAG, "en createPosGeoMSN");
 			Log.i("tiempoMensajes", hora + " -----> " + time);
 			
 			String latitude = Double.toString(location.getLatitude());
@@ -211,35 +212,37 @@ public class LocationService extends Service implements LocationListener
 			.append(provider);
 			//builder.append("LocationProvider[" )
 			
-			
+			Log.d(TAG, "en createPosGeoMSN: creada: " + latitude + " - " + longitude);
 			return builder;
 		}
 		
-		//---sends an SMS message to another device---
-	    private void sendSMS(String phoneNumber, String msg)
-	    {        
-	    	// make sure the fields are not empty
-	        if (phoneNumber.length()>0 && msg.length()>0)
-	        {
-	        	// call the sms manager
-	            PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, FollowMeActivity.class), 0);
-	                SmsManager sms = SmsManager.getDefault();
-	                // this is the function that does all the magic
-	                sms.sendTextMessage(phoneNumber, null, msg, pi, null);
-	                
-	               // log("\nMensaje Enviado a[ " + servidores[0] + " ]" );
-	        }
-	        else
-	        {
-	        	// display message if text fields are empty
-	            Toast.makeText(getBaseContext(),"All field are required",Toast.LENGTH_SHORT).show();
-	        	//log("\nPor alguna razon tu mensaje no se envio");
-	        }       
-	    }    
+//		//---sends an SMS message to another device---
+//	    private void sendSMS(String phoneNumber, String msg)
+//	    {        
+//	    	// make sure the fields are not empty
+//	        if (phoneNumber.length()>0 && msg.length()>0)
+//	        {
+//	        	// call the sms manager
+//	            PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, FollowMeActivity.class), 0);
+//	                SmsManager sms = SmsManager.getDefault();
+//	                // this is the function that does all the magic
+//	                sms.sendTextMessage(phoneNumber, null, msg, pi, null);
+//	                
+//	               // log("\nMensaje Enviado a[ " + servidores[0] + " ]" );
+//	        }
+//	        else
+//	        {
+//	        	// display message if text fields are empty
+//	            Toast.makeText(getBaseContext(),"All field are required",Toast.LENGTH_SHORT).show();
+//	        	//log("\nPor alguna razon tu mensaje no se envio");
+//	        }       
+//	    }    
 
 	    //---sends an SMS message to another device---
 	    private void sendSMSMonitor(String phoneNumber, String message)
-	    {        
+	    {  
+	    	Log.d(TAG, "en sendSMSMonitor");
+	    	
 	        String SENT = "SMS_SENT";
 	        String DELIVERED = "SMS_DELIVERED";
 	 
@@ -299,7 +302,8 @@ public class LocationService extends Service implements LocationListener
 	        }, new IntentFilter(DELIVERED));        
 	 
 	        SmsManager sms = SmsManager.getDefault();
-	        sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);        
+	        sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI); 
+	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje");
 	    }
 	    
 	    
