@@ -141,7 +141,7 @@ public class FollowMeActivity extends Activity
 	protected void onPause()
 	{
 		super.onPause();
-		stopServicioLocalizacion();
+		//stopServicioLocalizacion();
 		// Stop updates to save power while app paused
 //		if(!IsBtnPanicoPulsado)
 //		{
@@ -154,7 +154,7 @@ public class FollowMeActivity extends Activity
 	{
 		log("se para aplicacion");
 		super.onStop();
-		android.os.Process.killProcess(android.os.Process.myPid());
+		//android.os.Process.killProcess(android.os.Process.myPid());
 	}
 	
 	// Define human readable names

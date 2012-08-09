@@ -42,7 +42,7 @@ public class LocationService extends Service implements LocationListener
 {
 	private LocationManager mgr;
 	private static TextView output;
-	private static Button btnPanico;
+	//private static Button btnPanico;
 	private String best;
 	
 	private String[] servidores;
@@ -79,14 +79,19 @@ public class LocationService extends Service implements LocationListener
 		tiempoEnvioMensajeNoPanico = 5000; //en milisegundos
 		distanciaActualizacionPosicion = 300; //en metros
 		
-		//player = MediaPlayer.create(this, R.raw.braincandy);
-		//player.setLooping(false); // Set looping
+		servidores = new String[3];
+	  	servidores[0] = new String("5556");
+		
+		subscribeToLocationUpdates();
+		
+		player = MediaPlayer.create(this, R.raw.braincandy);
+		player.setLooping(false); // Set looping
 	}
 
 	public void onDestroy() {
 		Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onDestroy");
-		//player.stop();
+		player.stop();
 		mgr.removeUpdates(this);
 	}
 	
@@ -100,13 +105,39 @@ public class LocationService extends Service implements LocationListener
 			  	servidores = new String[3];
 			  	servidores[0] = new String("5556");
 			  	
-			mgr.requestLocationUpdates(best, tiempoEnvioMensajeNoPanico, distanciaActualizacionPosicion, this);
+			//mgr.requestLocationUpdates(best, tiempoEnvioMensajeNoPanico, distanciaActualizacionPosicion, this);
+			  	
 			Log.d(TAG, "onStart");
-		//player.start();
+		player.start();
 	}
 
 	
+	public void subscribeToLocationUpdates()
+	{
+       // this.mgr = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		
+		mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
+		Log.d(TAG, "Inscribiendo servicio de localizacion");
 
+    	//log("Location providers:" );
+    	dumpProviders();
+
+    	Criteria criteria = new Criteria();
+    	best = mgr.getBestProvider(criteria, true);
+    	//log("\nBest provider is: " + best);
+    	Log.d(TAG, "\nBest provider is: " + best);
+
+    	mgr.requestLocationUpdates(best, tiempoEnvioMensajePanico, distanciaActualizacionPosicion, this);
+    	Log.d(TAG, "se ejecuto: requestLocationUpdates");
+
+    	Log.d(TAG, "\nLocations (starting with last known):" );
+    	
+    	Location location = mgr.getLastKnownLocation(best);
+    	dumpLocation(location);
+        
+    }
+
+	
 	
 	
 	//******************************************************************
@@ -145,7 +176,7 @@ public class LocationService extends Service implements LocationListener
 	{
 		if (location == null)
 		{
-			//log("\nLocation[unknown]" );
+			Log.d(TAG, "en dumplocation: Location[unknown]" );
 		}
 		else
 		{
@@ -156,6 +187,7 @@ public class LocationService extends Service implements LocationListener
 			Log.d(TAG, "en dumplocation");
 			message = "\nROCA: " + location.toString();// esta a punto de terminar programa de localizacion de personas. Esto es una prueba";
 			message = createPosGeoMSN(location).toString();
+			Log.d(TAG, "Listo mensaje para ser enviado: sendSMSMonitor con: " + servidores[0] + "->" + message.toString());
 			sendSMSMonitor(servidores[0], message);
 			
 		}
@@ -186,15 +218,18 @@ public class LocationService extends Service implements LocationListener
 //				tipoMensaje = "OK";
 //			}
 			Log.d(TAG, "en createPosGeoMSN");
-			Log.i("tiempoMensajes", hora + " -----> " + time);
+			Log.d(TAG, "tiempoMensajes: " + hora + " -----> " + time);
 			
 			String latitude = Double.toString(location.getLatitude());
 			String longitude = Double.toString(location.getLongitude());
 			String provider = location.getProvider();
 			
+			Log.d(TAG, "en location.getProvider()");
 			
 			Time now = new Time();
 	    	now.setToNow();
+	    	
+	    	Log.d(TAG, "en Time: now.setToNow()");
 	    	
 			StringBuilder builder = new StringBuilder();
 			builder.append("$+id")
@@ -406,9 +441,11 @@ public class LocationService extends Service implements LocationListener
 		private void dumpProviders() 
 		{
 			List<String> providers = mgr.getAllProviders();
+			Log.d("TAG", "Obteniendo Proveedores localizacion");
 			for (String provider : providers) 
 			{
 				dumpProvider(provider);
+				Log.d("TAG", "Proveedor: " + provider);
 			}
 		}
 		
@@ -416,6 +453,8 @@ public class LocationService extends Service implements LocationListener
 		private void dumpProvider(String provider)
 		{
 			LocationProvider info = mgr.getProvider(provider);
+			Log.d("TAG", "Obteniendo datos del proveedor desde la variable: mgr");
+			
 			StringBuilder builder = new StringBuilder();
 			builder.append("LocationProvider[" )
 			.append("name=" )
@@ -441,6 +480,7 @@ public class LocationService extends Service implements LocationListener
 			.append(",supportsSpeed=" )
 			.append(info.supportsSpeed())
 			.append("]" );
-			log(builder.toString());
+			//log(builder.toString());
+			Log.d("TAG", "Se genero un Builder con datos del proveedor");
 		}
 }// Fin clase LocationService
