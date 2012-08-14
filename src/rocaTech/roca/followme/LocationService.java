@@ -22,18 +22,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
-import android.media.MediaPlayer;
+//import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
 import android.text.format.Time;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -41,39 +36,43 @@ import android.widget.Toast;
 public class LocationService extends Service implements LocationListener
 {
 	private LocationManager mgr;
-	private static TextView output;
-	//private static Button btnPanico;
 	private String best;
 	
 	private String[] servidores;
 	private String message;
 	
-	private int tiempoEnvioMensajePanico;
-	private int tiempoEnvioMensajeNoPanico;
-	private boolean IsenviarMensajeNoPanico;
-	private int distanciaActualizacionPosicion;
+	int tiempoEnvioMensajePanico;
+	int tiempoEnvioMensajeNoPanico;
+	boolean IsenviarMensajeNoPanico;
+	int distanciaActualizacionPosicion;
 	
 	
-	private boolean IsBtnPanicoPulsado;
+	private static boolean IsBtnPanicoPulsado;
+	private static boolean IsPrefUsuarioCambiadas;
 	
 	//Obtenemos la hora actual
 	Calendar calendario;
 	
+	// BroadCastReceiver para obtener estados de la GUI
+	private BroadcastReceiver mReceiver;
+	
 	
 	private static final String TAG = "Myservice";
-	MediaPlayer player;
+	//MediaPlayer player;
 	
+	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
 	
+	@Override
 	public void onCreate() {
 		
 		//Obtenemos la hora actual
 		calendario = new GregorianCalendar();
 		
-		Toast.makeText(this, "My Service Created", Toast.LENGTH_LONG).show();
-		Log.d(TAG, "onCreate");
+		//Toast.makeText(this, "My Service Created", Toast.LENGTH_LONG).show();
+		Log.d(TAG, "onCreate LocationService");
 		
 		tiempoEnvioMensajePanico = 1000; //en miisegundos
 		tiempoEnvioMensajeNoPanico = 5000; //en milisegundos
@@ -81,60 +80,96 @@ public class LocationService extends Service implements LocationListener
 		
 		servidores = new String[3];
 	  	servidores[0] = new String("5556");
-		
+	  	
+		get_PreferenciasUsuario();
 		subscribeToLocationUpdates();
 		
-		player = MediaPlayer.create(this, R.raw.braincandy);
-		player.setLooping(false); // Set looping
+		//CODIGO DEL BORADCASTRECEIVER PARA OBTENER LOS CAMBIOS Y ESTADOS DE LA GUI
+		 IntentFilter intentFilter = new IntentFilter("android.intent.action.MAIN");
+		 
+	        mReceiver = new BroadcastReceiver() {
+	 
+	            @Override
+	            public void onReceive(Context context, Intent intent) {
+	            	
+	            	IsBtnPanicoPulsado = intent.getBooleanExtra("panico_pulsado", false);
+	            	
+	            	Log.d(TAG, "llego actualizacion de la GUI");
+	            	if(IsBtnPanicoPulsado)
+	            	{
+	            		Log.d(TAG, "ejecutando envioMensajesPanicoActivado");
+	            		envioMensajesPanicoActivado();
+	            	}
+	            	else
+	            	{
+	            		Log.d(TAG, "ejecutando PanicoDesactivado");
+	            		PanicoDesactivado();
+	            	}
+	            	
+	            	IsPrefUsuarioCambiadas = intent.getBooleanExtra("prefUsuario_cambio", false);
+	            	if(IsPrefUsuarioCambiadas)
+	            	{
+	            		get_PreferenciasUsuario();
+	            		Log.d(TAG, "se recuperaron las preferencias de usuario por cambio desde GUI");
+	            	}
+	               
+	            }
+	        };
+	        //registering our receiver
+	        this.registerReceiver(mReceiver, intentFilter);
+		
+		
+		
+		
+//		player = MediaPlayer.create(this, R.raw.braincandy);
+//		player.setLooping(true); // Set looping
 	}
 
+	@Override
 	public void onDestroy() {
-		Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onDestroy");
-		player.stop();
+		//player.stop();
 		mgr.removeUpdates(this);
 	}
 	
+	@Override
 	public void onStart(Intent intent, int startid) {
-		Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
-		
-		// Start updates (doc recommends delay >= 60000 ms)
-		
+		//Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
+			
 		//se leen las preferencias del usuario
-							  	
-			  	servidores = new String[3];
-			  	servidores[0] = new String("5556");
-			  	
-			//mgr.requestLocationUpdates(best, tiempoEnvioMensajeNoPanico, distanciaActualizacionPosicion, this);
-			  	
-			Log.d(TAG, "onStart");
-		player.start();
+		FollowMeActivity.log("Se inicio Servicio de Localizacion");
+		get_PreferenciasUsuario();
+		//player.start();
+		
+		Log.d(TAG, "onStart");
 	}
 
 	
 	public void subscribeToLocationUpdates()
 	{
-       // this.mgr = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+       
+		Log.d(TAG, "suscribeToLocationUpdates");
+		if(IsenviarMensajeNoPanico && !IsBtnPanicoPulsado)
+		{
+			Log.d(TAG, "listo para envioMensajesPoscionNOPanico");
+			envioMensajesPoscionNOPanico();
+			Log.d(TAG, "se ejecuto envioMensajesPoscionNOPanico");
+		}
+		else
+		{
+			if(IsBtnPanicoPulsado)
+			{
+				envioMensajesPanicoActivado();
+			}
+			else
+			{
+				PanicoDesactivado();
+			}
+			
+		}
 		
-		mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
-		Log.d(TAG, "Inscribiendo servicio de localizacion");
 
-    	//log("Location providers:" );
-    	dumpProviders();
-
-    	Criteria criteria = new Criteria();
-    	best = mgr.getBestProvider(criteria, true);
-    	//log("\nBest provider is: " + best);
-    	Log.d(TAG, "\nBest provider is: " + best);
-
-    	mgr.requestLocationUpdates(best, tiempoEnvioMensajePanico, distanciaActualizacionPosicion, this);
-    	Log.d(TAG, "se ejecuto: requestLocationUpdates");
-
-    	Log.d(TAG, "\nLocations (starting with last known):" );
-    	
-    	Location location = mgr.getLastKnownLocation(best);
-    	dumpLocation(location);
-        
     }
 
 	
@@ -180,15 +215,36 @@ public class LocationService extends Service implements LocationListener
 		}
 		else
 		{
-			//log("\n" + location.toString());
+	
 			
 			/** send Message Geographics Position from Client**/
-			//phone = "5554"; //2292423424";
+			//phone = "5554"; //229242";
 			Log.d(TAG, "en dumplocation");
 			message = "\nROCA: " + location.toString();// esta a punto de terminar programa de localizacion de personas. Esto es una prueba";
 			message = createPosGeoMSN(location).toString();
+			
+					
 			Log.d(TAG, "Listo mensaje para ser enviado: sendSMSMonitor con: " + servidores[0] + "->" + message.toString());
 			sendSMSMonitor(servidores[0], message);
+			FollowMeActivity.log("Envio Mensaje Posicion:" + servidores[0]);
+		
+			
+			
+			//TODO: hay que revisar la forma de como enviar a mas de un servidor
+//			for(int i= 0; i<servidores.length; i++)
+//			{
+//				if(servidores[i] != "-1")
+//				{
+//					Log.d(TAG, "Envio de mensaje por Servidor: " + servidores[i]);
+//					sendSMSMonitor(servidores[i], message);
+//				}
+//				else
+//				{
+//					//TODO: aqui se debe enviar un mensaje al usuario donde le indique que no hay servidores inscritos
+//					Toast.makeText(getBaseContext(), "No hay servidor inscrito", Toast.LENGTH_SHORT).show();
+//				}
+//				
+//			}
 			
 		}
 	}
@@ -207,16 +263,15 @@ public class LocationService extends Service implements LocationListener
 			String hora = calendario.getTime().toLocaleString();
 			String time = Long.toString(location.getTime());
 			String tipoMensaje =  "";
-			tipoMensaje = "SOS";
-			
-//			if(IsBtnPanicoPulsado)
-//			{
-//				tipoMensaje = "SOS";
-//			}
-//			else
-//			{
-//				tipoMensaje = "OK";
-//			}
+						
+			if(IsBtnPanicoPulsado)
+			{
+				tipoMensaje = "SOS";
+			}
+			else
+			{
+				tipoMensaje = "OK";
+			}
 			Log.d(TAG, "en createPosGeoMSN");
 			Log.d(TAG, "tiempoMensajes: " + hora + " -----> " + time);
 			
@@ -248,30 +303,11 @@ public class LocationService extends Service implements LocationListener
 			//builder.append("LocationProvider[" )
 			
 			Log.d(TAG, "en createPosGeoMSN: creada: " + latitude + " - " + longitude);
+			
 			return builder;
 		}
 		
-//		//---sends an SMS message to another device---
-//	    private void sendSMS(String phoneNumber, String msg)
-//	    {        
-//	    	// make sure the fields are not empty
-//	        if (phoneNumber.length()>0 && msg.length()>0)
-//	        {
-//	        	// call the sms manager
-//	            PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, FollowMeActivity.class), 0);
-//	                SmsManager sms = SmsManager.getDefault();
-//	                // this is the function that does all the magic
-//	                sms.sendTextMessage(phoneNumber, null, msg, pi, null);
-//	                
-//	               // log("\nMensaje Enviado a[ " + servidores[0] + " ]" );
-//	        }
-//	        else
-//	        {
-//	        	// display message if text fields are empty
-//	            Toast.makeText(getBaseContext(),"All field are required",Toast.LENGTH_SHORT).show();
-//	        	//log("\nPor alguna razon tu mensaje no se envio");
-//	        }       
-//	    }    
+
 
 	    //---sends an SMS message to another device---
 	    private void sendSMSMonitor(String phoneNumber, String message)
@@ -281,11 +317,9 @@ public class LocationService extends Service implements LocationListener
 	        String SENT = "SMS_SENT";
 	        String DELIVERED = "SMS_DELIVERED";
 	 
-	        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0,
-	            new Intent(SENT), 0);
+	        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
 	 
-	        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0,
-	            new Intent(DELIVERED), 0);
+	        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
 	 
 	        //---when the SMS has been sent---
 	        registerReceiver(new BroadcastReceiver()
@@ -295,24 +329,19 @@ public class LocationService extends Service implements LocationListener
 	                switch (getResultCode())
 	                {
 	                    case Activity.RESULT_OK:
-	                        Toast.makeText(getBaseContext(), "SMS sent", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "SMS sent", Toast.LENGTH_SHORT).show();
 	                        break;
 	                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-	                        Toast.makeText(getBaseContext(), "Generic failure", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "Generic failure", Toast.LENGTH_SHORT).show();
 	                        break;
 	                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-	                        Toast.makeText(getBaseContext(), "No service", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "No service", Toast.LENGTH_SHORT).show();
 	                        break;
 	                    case SmsManager.RESULT_ERROR_NULL_PDU:
-	                        Toast.makeText(getBaseContext(), "Null PDU", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "Null PDU", Toast.LENGTH_SHORT).show();
 	                        break;
 	                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-	                        Toast.makeText(getBaseContext(), "Radio off", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "Radio off", Toast.LENGTH_SHORT).show();
 	                        break;
 	                }
 	            }
@@ -325,12 +354,10 @@ public class LocationService extends Service implements LocationListener
 	                switch (getResultCode())
 	                {
 	                    case Activity.RESULT_OK:
-	                        Toast.makeText(getBaseContext(), "SMS delivered", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "SMS delivered", Toast.LENGTH_SHORT).show();
 	                        break;
 	                    case Activity.RESULT_CANCELED:
-	                        Toast.makeText(getBaseContext(), "SMS not delivered", 
-	                                Toast.LENGTH_SHORT).show();
+	                        Toast.makeText(getBaseContext(), "SMS not delivered", Toast.LENGTH_SHORT).show();
 	                        break;                        
 	                }
 	            }
@@ -350,16 +377,17 @@ public class LocationService extends Service implements LocationListener
 	    //******************************************************************
 
 	    
-	    private void btnPanicoActivado()
+	    private void envioMensajesPanicoActivado()
 	    {
 	    	if(IsenviarMensajeNoPanico)
 	    	{
 	    		mgr.removeUpdates(this);
+	    		Log.d(TAG, "Se remueven los updates de No Panico");
 	    	}
 	    	mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-
-	    	Log.d("Location providers:", "proveedor" );
+	    	Log.d(TAG, "Inscribiendo servicio de localizacion Panico Activado");
+	    	Log.d(TAG, "Location providers: proveedor" );
 	    	dumpProviders();
 
 	    	Criteria criteria = new Criteria();
@@ -367,9 +395,14 @@ public class LocationService extends Service implements LocationListener
 	    	//Log("\nBest provider is: " + best);
 
 	    	mgr.requestLocationUpdates(best, tiempoEnvioMensajePanico, distanciaActualizacionPosicion, this);
-
-	    	log("\nLocations (starting with last known):" );
+	    	Log.d(TAG, "Request update en PanicoDesactivado: " + best + ":" +
+					Integer.toString(tiempoEnvioMensajePanico) + ":" +
+					Integer.toString(distanciaActualizacionPosicion));
+	    	
+	    	Log.d(TAG, "\nLocations (starting with last known):" );
 	    	Location location = mgr.getLastKnownLocation(best);
+	    	
+	    	FollowMeActivity.log("Envio Mensaje con Panico Activado");
 	    	dumpLocation(location);
 
 	    }
@@ -378,46 +411,90 @@ public class LocationService extends Service implements LocationListener
 	    {
 	    	mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-	    	log("Location providers:" );
+	    	Log.d(TAG, "Location providers:" );
 	    	dumpProviders();
 
 	    	Criteria criteria = new Criteria();
 	    	best = mgr.getBestProvider(criteria, true);
-	    	log("\nBest provider is: " + best);
+	    	Log.d(TAG, "\nBest provider is: " + best);
 
 	    	mgr.requestLocationUpdates(best, tiempoEnvioMensajeNoPanico, distanciaActualizacionPosicion, this);
-
-	    	log("\nLocations (starting with last known):" );
+	    	Log.d(TAG, "Request update en PanicoDesactivado: " + best + ":" +
+					Integer.toString(tiempoEnvioMensajeNoPanico) + ":" +
+					Integer.toString(distanciaActualizacionPosicion));
+	    	
 	    	Location location = mgr.getLastKnownLocation(best);
+	    	Log.d(TAG, "\nLocations (starting with last known):" );
+	    	
+	    	FollowMeActivity.log("Envio Mensaje con Panico Desactivado");
+	    	
 	    	dumpLocation(location);
 	    }
 	    
 	    
-	    private void btnPanicoDesactivado()
+	    private void PanicoDesactivado()
 	    {
 	    	mgr.removeUpdates(this);
 	    	
 	    	if(IsenviarMensajeNoPanico)
 	    	{
+	    		Log.d(TAG, "Se inicia el envio de mensajes NO Panico");
 	    		mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 
-	        	log("Location providers:" );
+	        	//log("Location providers:" );
 	        	dumpProviders();
 
 	        	Criteria criteria = new Criteria();
 	        	best = mgr.getBestProvider(criteria, true);
-	        	log("\nBest provider is: " + best);
+	        	//log("\nBest provider is: " + best);
 
 	        	mgr.requestLocationUpdates(best, tiempoEnvioMensajeNoPanico, distanciaActualizacionPosicion, this);
+	        	Log.d(TAG, "Request update en PanicoDesactivado: " + best + ":" +
+	        														Integer.toString(tiempoEnvioMensajeNoPanico) + ":" +
+	        														Integer.toString(distanciaActualizacionPosicion));
 
-	        	log("\nLocations (starting with last known):" );
+	        	//log("\nLocations (starting with last known):" );
 	        	Location location = mgr.getLastKnownLocation(best);
+	        	
+	        	FollowMeActivity.log("Envio Mensaje con Panico Desactivado");
+	        	
 	        	dumpLocation(location);
+	    	}
+	    	else
+	    	{
+	    		FollowMeActivity.log("NO HAY ENVIO DE MENSAJES");
 	    	}
 	    	
 	    	
 
+	    }
+	    
+  
+	   
+	    
+	    public void get_PreferenciasUsuario()
+	    {
+	    	Log.d(TAG, "Recuperando las preferencias de Usuario");
+	    	SharedPreferences sharedPrefs =	PreferenceManager.getDefaultSharedPreferences(LocationService.this);
+			
+			tiempoEnvioMensajePanico = Integer.parseInt(sharedPrefs.getString("tiempo_envio_mensajes_panico", "10000"));
+			tiempoEnvioMensajeNoPanico = Integer.parseInt(sharedPrefs.getString("tiempo_envio_mensaje_sin_panico", "300000"));
+		  	IsenviarMensajeNoPanico = sharedPrefs.getBoolean("enviar_mensajes_sin_panico", false);
+		  	distanciaActualizacionPosicion = 100;
+		  	
+		  	servidores = new String[3];
+		  	servidores[0] = new String(sharedPrefs.getString("servidor1", "-1"));
+		  	
+		  	Log.d(TAG, "Preferencias Usuario: " + Integer.toString(tiempoEnvioMensajeNoPanico) + "->" + 
+		  							Integer.toString(tiempoEnvioMensajePanico) + "->" +
+		  							Boolean.toString(IsenviarMensajeNoPanico) + "->" +
+		  							servidores[0]);
+	    }
+
+	    public static boolean get_EstadoPanico()
+	    {
+	    	return IsBtnPanicoPulsado;
 	    }
 	    
 	  //******************************************************************
@@ -429,13 +506,13 @@ public class LocationService extends Service implements LocationListener
 		// Define human readable names
 		private static final String[] A = { "invalid" , "n/a" , "fine" , "coarse" };
 		private static final String[] P = { "invalid" , "n/a" , "low" , "medium" ,	"high" };
-		private static final String[] S = { "out of service" ,"temporarily unavailable" , "available" };
-		/** Write a string to the output window */
-		
-		public static void log(String string)
-		{
-			output.append(string + "\n" );
-		}
+		//private static final String[] S = { "out of service" ,"temporarily unavailable" , "available" };
+//		/** Write a string to the output window */
+//		
+//		public static void log(String string)
+//		{
+//			output.append(string + "\n" );
+//		}
 		
 		/** Write information from all location providers */
 		private void dumpProviders() 

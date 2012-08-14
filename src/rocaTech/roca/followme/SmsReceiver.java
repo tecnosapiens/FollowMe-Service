@@ -36,7 +36,7 @@ public class SmsReceiver extends BroadcastReceiver
 	            //Here put code to execute fuction in FollowMeActivity
 	            	            
 	           
-	            FollowMeActivity.log(str);
+	            //FollowMeActivity.log(str);
 	                                 
 	           
 	        }                         

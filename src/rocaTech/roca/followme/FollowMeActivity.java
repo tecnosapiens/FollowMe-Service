@@ -1,24 +1,29 @@
 package rocaTech.roca.followme;
 
 
-
 import rocaTech.roca.followme.R.id;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+
 
 public class FollowMeActivity extends Activity
 {
 	//variables de apoyo
-	 private static final String TAG = "ServicesDemo";
+	 private static final String TAG = "MyGUIService";
 	
 	
 	// variables de la GUI
@@ -26,16 +31,9 @@ public class FollowMeActivity extends Activity
 	private static Button btnPanico;
 	private static Button btnPararApli;
 	private boolean IsBtnPanicoPulsado;
-	
-	
-	// variables de Menu
-	private String[] servidores;
-	private int tiempoEnvioMensajePanico;
-	private int tiempoEnvioMensajeNoPanico;
-	private boolean IsenviarMensajeNoPanico;
-	private int distanciaActualizacionPosicion;
-	
-	
+			
+	//Obtenemos la hora actual
+	Calendar calendario;
 	
     /** Called when the activity is first created. */
     @Override
@@ -44,9 +42,23 @@ public class FollowMeActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        // se inicia el servicio de localizacion geografica y envio de mensajes de posicion
+        iniciarServicioLocalizacion();
+               
+        // INSTRUCCIONES PARA RECUPERAR LAS PREFERENCIAS DEL USUARIO
+        IsBtnPanicoPulsado = false;
+        
+		//Obtenemos la hora actual
+		calendario = new GregorianCalendar();
+					
+	  	
+	  	// FIN PREFERENCIAS DE USUARIO
+        
         output = (TextView) findViewById(R.id.output);
     	output.setMovementMethod(new ScrollingMovementMethod());
     	
+    	//log("Iniciando el Sistema de Posicion Geografica");
+    
     	// Control del Boton (Toggle) de Panico
     	btnPanico = (ToggleButton) findViewById(R.id.BtnPanico);
     	    	
@@ -58,19 +70,26 @@ public class FollowMeActivity extends Activity
     			//Hacer rutina de gestion de posicion geografica por boton panico activado
     			if (((ToggleButton) btnPanico).isChecked()) 
     			{
+    				
     				IsBtnPanicoPulsado = true;
-    				//btnPanicoActivado();  //Funcion que realiza la accion al activar el boton panico
-    				 Log.d(TAG, "onClick: starting srvice");
-    			     iniciarServicioLocalizacion();
-    			     btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_stop));
+    				BtnPanicoPulsoadoBroadCast(IsBtnPanicoPulsado);
+    				btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_stop));
+    				
+    				log("Boton Panico Activado");
 
+    				Log.d(TAG, "onClick: boton panico pulsado");
+    				
+    			   
     			} else
     			{
+    				
     				IsBtnPanicoPulsado = false;
-    				//btnPanicoDesactivado(); //Funcion que realiza la accion al desactivar el boton panico
-    				Log.d(TAG, "onClick: stopping srvice");
-    			    stopServicioLocalizacion();
+    				BtnPanicoPulsoadoBroadCast(IsBtnPanicoPulsado);
     				btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_go));
+    				
+    				log("Boton Panico Desactivado");
+    				
+    				Log.d(TAG, "onClick: boton panico despulsado");
 
 
     			}
@@ -86,98 +105,124 @@ public class FollowMeActivity extends Activity
 			
 			public void onClick(View v) {
 				
-				// TODO Auto-generated method stub
-				
-				onStop();
+				// Instruccion para matar el los procesos de la aplicacion				
+				PararCompletaAplicacion();
 				
 			}
 		});
-    	
     }
     
     @Override
 	protected void onResume()
 	{
 		super.onResume();
-		
-//		//se leen las preferencias del usuario
-//		SharedPreferences sharedPrefs =	PreferenceManager.getDefaultSharedPreferences(FollowMeActivity.this);
-//		
-//		tiempoEnvioMensajePanico = Integer.parseInt(sharedPrefs.getString("tiempo_envio_mensajes_panico", "10000"));
-//		tiempoEnvioMensajeNoPanico = Integer.parseInt(sharedPrefs.getString("tiempo_envio_mensaje_sin_panico", "300000"));
-//	  	IsenviarMensajeNoPanico = sharedPrefs.getBoolean("enviar_mensajes_sin_panico", false);
-//	  	distanciaActualizacionPosicion = 100;
-//	  	
-//	  	servidores = new String[3];
-//	  	servidores[0] = new String(sharedPrefs.getString("servidor1", "-1"));
-//	  	
-//		
-//		// Start updates (doc recommends delay >= 60000 ms)
-//		if(IsenviarMensajeNoPanico)
-//		{
-//			mgr.requestLocationUpdates(best, tiempoEnvioMensajeNoPanico, distanciaActualizacionPosicion, this);
-//		}
-		
-		
-		
-//		//Recuperacion de las preferencias de usuarios para envio de mensajes de posicion
-//		// En panico = Usuario a activado la alarma de SOS
-//		// No panico = la aplicacion puede enviar mensaje de posicion periodicamente. El tiempo de envio dependera 
-//		// de las preferencias de envio proporcionadas por el usuario
-//		
-//		SharedPreferences sharedPrefs =	PreferenceManager.getDefaultSharedPreferences(FollowMeActivity.this);
-//	  	  
-//    	StringBuilder builder = new StringBuilder();
-//	  	 
-//	  	  builder.append("\n enviar_mensajes_sin_panico (usuario): " + sharedPrefs.getBoolean("enviar_mensajes_sin_panico", false));
-//	  	  builder.append("\n tiempo_envio_mensaje_sin_panico (usuario): " + sharedPrefs.getString("tiempo_envio_mensaje_sin_panico", "600000"));
-//	  	  builder.append("\n tiempo_envio_mensajes_panico (usuario): " + sharedPrefs.getString("tiempo_envio_mensajes_panico", "60000"));
-//	  	  builder.append("\n servidor1 (usuario): " + sharedPrefs.getString("servidor1", "-1"));
-//	  	  
-//	  	 Log.i("Preferencias", builder.toString() );   	
+
+		// Al reestablecer la visualizacion de la Aplicacion se recupera el estado del boton de panico
+		// para con esto contiuar la ejecucion de la aplicacion en su ultimo estado
+	    if (LocationService.get_EstadoPanico()) 
+		{
+	    	((ToggleButton) btnPanico).setChecked(true);
+			btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_stop));
+			log("Aplicacion reiniciada con Boton Panico Activado");
+
+		} else
+		{
+			((ToggleButton) btnPanico).setChecked(false);
+			btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_go));
+			log("Aplicacion reiniciada con Boton Panico Desactivado");
+
+		}
+	    
+	    
+	    // se envia un mensaje al LocationService para que recupere las preferencias del Usuario
+	    preferenciasUsuarioRecuperar(true);
+
+
 	}
 	
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
-		//stopServicioLocalizacion();
-		// Stop updates to save power while app paused
-//		if(!IsBtnPanicoPulsado)
-//		{
-//			mgr.removeUpdates(this);
-//		}
+		
 	}
 	
-	@Override
-	protected void onStop()
+
+	private void PararCompletaAplicacion()
 	{
-		log("se para aplicacion");
-		super.onStop();
-		//android.os.Process.killProcess(android.os.Process.myPid());
+		//TODO: ANTES DE EJECUTAR EL PARO DE LA APLICACION SE DEBE PEDIR CONTRASEÑA
+		stopServicioLocalizacion();
+		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 	
-	// Define human readable names
-		private static final String[] A = { "invalid" , "n/a" , "fine" , "coarse" };
-		private static final String[] P = { "invalid" , "n/a" , "low" , "medium" ,	"high" };
-		private static final String[] S = { "out of service" ,"temporarily unavailable" , "available" };
-		/** Write a string to the output window */
-		
-		public static void log(String string)
-		{
-			output.append(string + "\n" );
-		}
-		
+	
 		
     public void iniciarServicioLocalizacion()
     {
-    	Log.d(TAG, "iniciarServicioLocalizacion: se va llamar a iniciar");
+    	 
     	 startService(new Intent(this, LocationService.class));
+    	 Log.d(TAG, "iniciarServicioLocalizacion: se va llamar a iniciar");
     }
     
     public void stopServicioLocalizacion()
     {
     	stopService(new Intent(this, LocationService.class));
     }
+    
+    public void BtnPanicoPulsoadoBroadCast(boolean valor)
+    {
+    	Intent i = new Intent("android.intent.action.MAIN").putExtra("panico_pulsado", valor);
+    		Context context = this.getApplicationContext();
+            context.sendBroadcast(i);
+           log("Se activa alarma de Panico");
+    	
+    }
+    
+    public void preferenciasUsuarioRecuperar(boolean valor)
+    {
+    	Intent i = new Intent("android.intent.action.MAIN").putExtra("prefUsuario_cambio", valor);
+		Context context = this.getApplicationContext();
+        context.sendBroadcast(i);
+        log("Se recuperan preferencias Usuario");
+    }
+    
+    //******************************************************************
+  	//		FUNCIONES DE ADMINISTRACION DE MENUS DE CONFIGURACION DE USUARIO
+  	//
+  	//******************************************************************
+  		
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.menu_principal, menu);
+    return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) 
+	    {
+		    case R.id.MenuMensajes:
+		       	startActivity(new Intent(this, Pref_MensajesPosicion.class));
+		    return true;
+		    case R.id.MenuServidores:
+		    	startActivity(new Intent(this, Pref_ServidoresPosicion.class));
+		    return true;
+		    case R.id.MenuServicios:
+		   // menu de opcion 3 pulsada
+		    return true;
+		    default:
+		    return super.onOptionsItemSelected(item);
+	    }
+    }
+    
+   
+
+ 		public static void log(String string)
+ 		{
+ 			output.append(string + "\n" );
+ 		}
+ 		
     
 }// Fin Activity
