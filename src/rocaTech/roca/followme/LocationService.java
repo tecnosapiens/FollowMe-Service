@@ -66,7 +66,9 @@ public class LocationService extends Service implements LocationListener
 	}
 	
 	@Override
-	public void onCreate() {
+	public void onCreate()
+	{
+		mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 		
 		//Obtenemos la hora actual
 		calendario = new GregorianCalendar();
@@ -140,6 +142,7 @@ public class LocationService extends Service implements LocationListener
 		//se leen las preferencias del usuario
 		FollowMeActivity.log("Se inicio Servicio de Localizacion");
 		get_PreferenciasUsuario();
+		//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 		//player.start();
 		
 		Log.d(TAG, "onStart");
@@ -187,6 +190,7 @@ public class LocationService extends Service implements LocationListener
 	 */
 	public void onLocationChanged(Location location)
 	{
+		FollowMeActivity.log("Cambio de posicion geografica");
 		dumpLocation(location);
 	}
 	
@@ -314,57 +318,66 @@ public class LocationService extends Service implements LocationListener
 	    {  
 	    	Log.d(TAG, "en sendSMSMonitor");
 	    	
-	        String SENT = "SMS_SENT";
-	        String DELIVERED = "SMS_DELIVERED";
+//	        String SENT = "SMS_SENT";
+//	        String DELIVERED = "SMS_DELIVERED";
+//	 
+//	        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
+//	 
+//	        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
 	 
-	        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
+//	        //---when the SMS has been sent---
+//	        registerReceiver(new BroadcastReceiver()
+//	        {
+//	            @Override
+//	            public void onReceive(Context arg0, Intent arg1) {
+//	                switch (getResultCode())
+//	                {
+//	                    case Activity.RESULT_OK:
+//	                        //Toast.makeText(getBaseContext(), "SMS sent", Toast.LENGTH_SHORT).show();
+//	                    	FollowMeActivity.log("SMS enviado");
+//	                        break;
+//	                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+//	                        //Toast.makeText(getBaseContext(), "Generic failure", Toast.LENGTH_SHORT).show();
+//	                    	FollowMeActivity.log("Falla Generica");
+//	                        break;
+//	                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+//	                        //Toast.makeText(getBaseContext(), "No service", Toast.LENGTH_SHORT).show();
+//	                        FollowMeActivity.log("No hay servicio");
+//	                        break;
+//	                    case SmsManager.RESULT_ERROR_NULL_PDU:
+//	                        //Toast.makeText(getBaseContext(), "Null PDU", Toast.LENGTH_SHORT).show();
+//	                        FollowMeActivity.log("Null PDU");
+//	                        break;
+//	                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+//	                        //Toast.makeText(getBaseContext(), "Radio off", Toast.LENGTH_SHORT).show();
+//	                    	FollowMeActivity.log("Radio Apagado");
+//	                        break;
+//	                }
+//	            }
+//	        }, new IntentFilter(SENT));
 	 
-	        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
-	 
-	        //---when the SMS has been sent---
-	        registerReceiver(new BroadcastReceiver()
-	        {
-	            @Override
-	            public void onReceive(Context arg0, Intent arg1) {
-	                switch (getResultCode())
-	                {
-	                    case Activity.RESULT_OK:
-	                        Toast.makeText(getBaseContext(), "SMS sent", Toast.LENGTH_SHORT).show();
-	                        break;
-	                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-	                        Toast.makeText(getBaseContext(), "Generic failure", Toast.LENGTH_SHORT).show();
-	                        break;
-	                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-	                        Toast.makeText(getBaseContext(), "No service", Toast.LENGTH_SHORT).show();
-	                        break;
-	                    case SmsManager.RESULT_ERROR_NULL_PDU:
-	                        Toast.makeText(getBaseContext(), "Null PDU", Toast.LENGTH_SHORT).show();
-	                        break;
-	                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-	                        Toast.makeText(getBaseContext(), "Radio off", Toast.LENGTH_SHORT).show();
-	                        break;
-	                }
-	            }
-	        }, new IntentFilter(SENT));
-	 
-	        //---when the SMS has been delivered---
-	        registerReceiver(new BroadcastReceiver(){
-	            @Override
-	            public void onReceive(Context arg0, Intent arg1) {
-	                switch (getResultCode())
-	                {
-	                    case Activity.RESULT_OK:
-	                        Toast.makeText(getBaseContext(), "SMS delivered", Toast.LENGTH_SHORT).show();
-	                        break;
-	                    case Activity.RESULT_CANCELED:
-	                        Toast.makeText(getBaseContext(), "SMS not delivered", Toast.LENGTH_SHORT).show();
-	                        break;                        
-	                }
-	            }
-	        }, new IntentFilter(DELIVERED));        
+//	        //---when the SMS has been delivered---
+//	        registerReceiver(new BroadcastReceiver(){
+//	            @Override
+//	            public void onReceive(Context arg0, Intent arg1) {
+//	                switch (getResultCode())
+//	                {
+//	                    case Activity.RESULT_OK:
+//	                        //Toast.makeText(getBaseContext(), "SMS delivered", Toast.LENGTH_SHORT).show();
+//	                        FollowMeActivity.log("SMS Entregado");
+//	                        break;
+//	                    case Activity.RESULT_CANCELED:
+//	                        //Toast.makeText(getBaseContext(), "SMS not delivered", Toast.LENGTH_SHORT).show();
+//	                        FollowMeActivity.log("SMS No entregado");
+//	                        break;                        
+//	                }
+//	            }
+//	        }, new IntentFilter(DELIVERED));        
 	 
 	        SmsManager sms = SmsManager.getDefault();
-	        sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI); 
+	        //sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI); 
+	        sms.sendTextMessage(phoneNumber, null, message, null, null); 
+	        FollowMeActivity.log("SMS enviado en funcion de envio de mensaje");
 	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje");
 	    }
 	    
@@ -384,7 +397,7 @@ public class LocationService extends Service implements LocationListener
 	    		mgr.removeUpdates(this);
 	    		Log.d(TAG, "Se remueven los updates de No Panico");
 	    	}
-	    	mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
+	    	//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 	    	Log.d(TAG, "Inscribiendo servicio de localizacion Panico Activado");
 	    	Log.d(TAG, "Location providers: proveedor" );
@@ -409,7 +422,7 @@ public class LocationService extends Service implements LocationListener
 	    
 	    private void envioMensajesPoscionNOPanico()
 	    {
-	    	mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
+	    	//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 	    	Log.d(TAG, "Location providers:" );
 	    	dumpProviders();
@@ -439,7 +452,7 @@ public class LocationService extends Service implements LocationListener
 	    	if(IsenviarMensajeNoPanico)
 	    	{
 	    		Log.d(TAG, "Se inicia el envio de mensajes NO Panico");
-	    		mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
+	    		//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 
 	        	//log("Location providers:" );
