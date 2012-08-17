@@ -2,6 +2,7 @@ package rocaTech.roca.followme;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
 import java.util.List;
 
 
@@ -9,8 +10,8 @@ import java.util.List;
 
 
 
-import android.app.Activity;
-import android.app.PendingIntent;
+//import android.app.Activity;
+//import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,12 +25,14 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 //import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
 import android.text.format.Time;
 import android.util.Log;
-import android.widget.Toast;
+//import android.widget.Toast;
+//import android.widget.Toast;
 
 
 
@@ -39,7 +42,7 @@ public class LocationService extends Service implements LocationListener
 	private String best;
 	
 	private String[] servidores;
-	private String message;
+	public String message;
 	
 	int tiempoEnvioMensajePanico;
 	int tiempoEnvioMensajeNoPanico;
@@ -60,6 +63,10 @@ public class LocationService extends Service implements LocationListener
 	private static final String TAG = "Myservice";
 	//MediaPlayer player;
 	
+	boolean enConteo;
+	Handler mHandler;
+	int tiempoTranscurrido; //conteo de tiempo en segundos
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -73,6 +80,9 @@ public class LocationService extends Service implements LocationListener
 		//Obtenemos la hora actual
 		calendario = new GregorianCalendar();
 		
+		enConteo = false;
+		mHandler = new Handler();
+		
 		//Toast.makeText(this, "My Service Created", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onCreate LocationService");
 		
@@ -82,6 +92,7 @@ public class LocationService extends Service implements LocationListener
 		
 		servidores = new String[3];
 	  	servidores[0] = new String("5556");
+	  	message = "-1";
 	  	
 		get_PreferenciasUsuario();
 		subscribeToLocationUpdates();
@@ -94,7 +105,10 @@ public class LocationService extends Service implements LocationListener
 	            @Override
 	            public void onReceive(Context context, Intent intent) {
 	            	
-	            	IsBtnPanicoPulsado = intent.getBooleanExtra("panico_pulsado", false);
+	            	
+	            	//FollowMeActivity.log("Valor Panico Pulsado antes:" + Boolean.toString(IsBtnPanicoPulsado));
+	            	IsBtnPanicoPulsado = intent.getBooleanExtra("panico_pulsado", IsBtnPanicoPulsado);
+	            	//FollowMeActivity.log("Valor Panico Pulsado despues:" + Boolean.toString(IsBtnPanicoPulsado));
 	            	
 	            	Log.d(TAG, "llego actualizacion de la GUI");
 	            	if(IsBtnPanicoPulsado)
@@ -133,6 +147,11 @@ public class LocationService extends Service implements LocationListener
 		Log.d(TAG, "onDestroy");
 		//player.stop();
 		mgr.removeUpdates(this);
+		
+		if(mHandler != null)
+	    {
+	    	   mHandler.removeCallbacks(mMuestraMensaje);
+	    }
 	}
 	
 	@Override
@@ -140,8 +159,9 @@ public class LocationService extends Service implements LocationListener
 		//Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 			
 		//se leen las preferencias del usuario
-		FollowMeActivity.log("Se inicio Servicio de Localizacion");
+		FollowMeActivity.log("Inicio Servicio Localizacion");
 		get_PreferenciasUsuario();
+		iniciarHiloConteoTiempo();
 		//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 		//player.start();
 		
@@ -190,7 +210,7 @@ public class LocationService extends Service implements LocationListener
 	 */
 	public void onLocationChanged(Location location)
 	{
-		FollowMeActivity.log("Cambio de posicion geografica");
+		FollowMeActivity.log("Posicion Geografica Actualizada");
 		dumpLocation(location);
 	}
 	
@@ -216,6 +236,7 @@ public class LocationService extends Service implements LocationListener
 		if (location == null)
 		{
 			Log.d(TAG, "en dumplocation: Location[unknown]" );
+			message = "-1";
 		}
 		else
 		{
@@ -224,13 +245,13 @@ public class LocationService extends Service implements LocationListener
 			/** send Message Geographics Position from Client**/
 			//phone = "5554"; //229242";
 			Log.d(TAG, "en dumplocation");
-			message = "\nROCA: " + location.toString();// esta a punto de terminar programa de localizacion de personas. Esto es una prueba";
+			//message = "\nROCA: " + location.toString();// esta a punto de terminar programa de localizacion de personas. Esto es una prueba";
 			message = createPosGeoMSN(location).toString();
-			
-					
 			Log.d(TAG, "Listo mensaje para ser enviado: sendSMSMonitor con: " + servidores[0] + "->" + message.toString());
-			sendSMSMonitor(servidores[0], message);
-			FollowMeActivity.log("Envio Mensaje Posicion:" + servidores[0]);
+					
+		
+//			sendSMSMonitor(servidores[0], message);
+//			FollowMeActivity.log("Envio Mensaje Posicion:" + servidores[0]);
 		
 			
 			
@@ -377,7 +398,7 @@ public class LocationService extends Service implements LocationListener
 	        SmsManager sms = SmsManager.getDefault();
 	        //sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI); 
 	        sms.sendTextMessage(phoneNumber, null, message, null, null); 
-	        FollowMeActivity.log("SMS enviado en funcion de envio de mensaje");
+	        //FollowMeActivity.log("SMS enviado en funcion de envio de mensaje");
 	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje");
 	    }
 	    
@@ -415,8 +436,11 @@ public class LocationService extends Service implements LocationListener
 	    	Log.d(TAG, "\nLocations (starting with last known):" );
 	    	Location location = mgr.getLastKnownLocation(best);
 	    	
-	    	FollowMeActivity.log("Envio Mensaje con Panico Activado");
+	    	//FollowMeActivity.log("Envio Mensaje con Panico Activado");
 	    	dumpLocation(location);
+	    	
+	    	iniciarHiloConteoTiempo();
+	    	
 
 	    }
 	    
@@ -439,9 +463,10 @@ public class LocationService extends Service implements LocationListener
 	    	Location location = mgr.getLastKnownLocation(best);
 	    	Log.d(TAG, "\nLocations (starting with last known):" );
 	    	
-	    	FollowMeActivity.log("Envio Mensaje con Panico Desactivado");
+	    	//FollowMeActivity.log("Envio Mensaje con Panico Desactivado");
 	    	
 	    	dumpLocation(location);
+	    	iniciarHiloConteoTiempo();
 	    }
 	    
 	    
@@ -470,13 +495,15 @@ public class LocationService extends Service implements LocationListener
 	        	//log("\nLocations (starting with last known):" );
 	        	Location location = mgr.getLastKnownLocation(best);
 	        	
-	        	FollowMeActivity.log("Envio Mensaje con Panico Desactivado");
+	        	//FollowMeActivity.log("Envio Mensaje con Panico Desactivado");
 	        	
 	        	dumpLocation(location);
+	        	iniciarHiloConteoTiempo();
 	    	}
 	    	else
 	    	{
-	    		FollowMeActivity.log("NO HAY ENVIO DE MENSAJES");
+	    		FollowMeActivity.log("NO CONFIGURADO ENVIO DE MENSAJES");
+	    		
 	    	}
 	    	
 	    	
@@ -573,4 +600,83 @@ public class LocationService extends Service implements LocationListener
 			//log(builder.toString());
 			Log.d("TAG", "Se genero un Builder con datos del proveedor");
 		}
+		
+		
+		// HILO PARA EL CONTEO DEL TIEMPO MONOTONICO
+		
+		private void iniciarHiloConteoTiempo()
+		{
+			if(mHandler != null)
+	    	{
+	    	      Log.i("FolowMe", "timer canceled");
+	    	      mHandler.removeCallbacks(mMuestraMensaje);
+	    	      Log.i("FolowMe", "se borro la pila del handler");
+	    	      
+	    	      tiempoTranscurrido = 0;
+	    	          	      
+	    	      mHandler.postDelayed(mMuestraMensaje, 1000);
+	    	      Log.i("FollowMe", "dentro del hilo task");
+	    	      
+	    	}
+		}
+		
+		private Runnable mMuestraMensaje = new Runnable()
+	    {
+	    	
+	        public void run()
+	        {
+	        	tiempoTranscurrido = tiempoTranscurrido + 1000;   
+	        	
+	        	if(IsBtnPanicoPulsado)
+	        	{
+//	        		FollowMeActivity.log("Tiempo en Panico: " + Integer.toString(tiempoEnvioMensajePanico)
+//	        												  + " -> "
+//	        												  + Integer.toString(tiempoTranscurrido));
+	        		if(tiempoTranscurrido == tiempoEnvioMensajePanico)
+	        		{
+	        			// enviar el mensaje de posicion por panico
+	        			//TODO: SE DEBE IMPLEMENTAR EL CODIGO PARA EVIAR LOS MENSAJES A TODOS LOS SERVIDORES
+	        			if(message != "-1")
+	        			{
+	        				sendSMSMonitor(servidores[0], message);
+	        			//FollowMeActivity.log("Envio Mensaje Posicion PANICO:" + servidores[0]);
+	        			}
+	        			else
+	        			{
+	        				FollowMeActivity.log("NO SE ENVIO MENSAJE");
+	        			}
+	        			//FollowMeActivity.log("Aqui Enviar SMS Panico: " + Integer.toString(tiempoTranscurrido));
+	        			tiempoTranscurrido = 0;
+	        		}
+	        	}
+	        	else
+	        	{
+        			FollowMeActivity.log("Tiempo en No Panico: " + Integer.toString(tiempoEnvioMensajeNoPanico)
+																 + " -> "
+									        					 + Integer.toString(tiempoTranscurrido));
+        			if(tiempoTranscurrido == tiempoEnvioMensajeNoPanico)
+        			{
+        				// enviar el mensaje de posicion por panico
+	        			//TODO: SE DEBE IMPLEMENTAR EL CODIGO PARA EVIAR LOS MENSAJES A TODOS LOS SERVIDORES
+        				if(message != "-1")
+	        			{
+        					sendSMSMonitor(servidores[0], message);
+        					FollowMeActivity.log("Envio Mensaje Posicion NO PANICO:" + servidores[0]);
+	        			}
+        				else
+        				{
+        					FollowMeActivity.log("NO SE ENVIO MENSAJE");
+        				}
+        				
+        				tiempoTranscurrido = 0;
+        			}
+	        	}
+				
+				
+	    		Log.i("FollowYou", "Se repite ejecucion del HILO");
+		        mHandler.removeCallbacks(mMuestraMensaje);
+	           mHandler.postDelayed(mMuestraMensaje, 1000);
+	        } // fin run
+	      };// fin runnable mMuestraMensaje
+	      
 }// Fin clase LocationService

@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -80,7 +81,8 @@ public class FollowMeActivity extends Activity
     				Log.d(TAG, "onClick: boton panico pulsado");
     				
     			   
-    			} else
+    			} 
+    			else
     			{
     				
     				IsBtnPanicoPulsado = false;
@@ -121,15 +123,16 @@ public class FollowMeActivity extends Activity
 		// para con esto contiuar la ejecucion de la aplicacion en su ultimo estado
 	    if (LocationService.get_EstadoPanico()) 
 		{
-	    	((ToggleButton) btnPanico).setChecked(true);
+	    	//((ToggleButton) btnPanico).setChecked(true);
 			btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_stop));
-			log("Aplicacion reiniciada con Boton Panico Activado");
-
+			//log("Aplicacion reiniciada con Boton Panico Activado");
+			BtnPanicoPulsoadoBroadCast(true);
 		} else
 		{
-			((ToggleButton) btnPanico).setChecked(false);
+			//((ToggleButton) btnPanico).setChecked(false);
 			btnPanico.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_button_go));
-			log("Aplicacion reiniciada con Boton Panico Desactivado");
+			//log("Aplicacion reiniciada con Boton Panico Desactivado");
+			BtnPanicoPulsoadoBroadCast(false);
 
 		}
 	    
@@ -174,7 +177,7 @@ public class FollowMeActivity extends Activity
     	Intent i = new Intent("android.intent.action.MAIN").putExtra("panico_pulsado", valor);
     		Context context = this.getApplicationContext();
             context.sendBroadcast(i);
-           log("Se activa alarma de Panico");
+           log("Alarma Panico Activada");
     	
     }
     
@@ -183,7 +186,7 @@ public class FollowMeActivity extends Activity
     	Intent i = new Intent("android.intent.action.MAIN").putExtra("prefUsuario_cambio", valor);
 		Context context = this.getApplicationContext();
         context.sendBroadcast(i);
-        log("Se recuperan preferencias Usuario");
+        log("Preferencias Usuario Recuperadas");
     }
     
     //******************************************************************
@@ -222,6 +225,16 @@ public class FollowMeActivity extends Activity
  		public static void log(String string)
  		{
  			output.append(string + "\n" );
+ 			
+ 			final Layout layout = output.getLayout();
+ 	        if(layout != null)
+ 	        {
+ 	            int scrollDelta = layout.getLineBottom(output.getLineCount() - 1) - output.getScrollY() - output.getHeight();
+ 	            if(scrollDelta > 0)
+ 	            {
+ 	            	output.scrollBy(0, scrollDelta);
+ 	            }
+ 	        }
  		}
  		
     
