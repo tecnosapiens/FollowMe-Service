@@ -651,9 +651,9 @@ public class LocationService extends Service implements LocationListener
 	        	}
 	        	else
 	        	{
-        			FollowMeActivity.log("Tiempo en No Panico: " + Integer.toString(tiempoEnvioMensajeNoPanico)
-																 + " -> "
-									        					 + Integer.toString(tiempoTranscurrido));
+//        			FollowMeActivity.log("Tiempo en No Panico: " + Integer.toString(tiempoEnvioMensajeNoPanico)
+//																 + " -> "
+//									        					 + Integer.toString(tiempoTranscurrido));
         			if(tiempoTranscurrido == tiempoEnvioMensajeNoPanico)
         			{
         				// enviar el mensaje de posicion por panico

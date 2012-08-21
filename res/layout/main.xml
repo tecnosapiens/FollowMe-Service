@@ -1,8 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml  version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:gravity="center_vertical"
     android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_weight="0.08"
+        android:background="#2F4F4F" >
+
+        <ImageView
+            android:id="@+id/imageProvServPos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/no_recepcion" />
+
+        <TextView
+            android:id="@+id/textEdadEnvio"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|center"
+            android:layout_weight="1"
+            android:gravity="center_vertical|center"
+            android:text="@string/label_edad_mensaje"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textPosActual"
+            android:layout_width="104dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|center"
+            android:text="@string/label_posgeo_actual"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
 
     <ToggleButton
         android:id="@+id/BtnPanico"
@@ -15,27 +52,39 @@
         android:textColor="#000000"
         android:textOff="S.O.S\nNO Activo"
         android:textOn="S.O.S\nActivado" />
-
+
     <TextView
         android:id="@+id/output"
         android:layout_width="fill_parent"
         android:layout_height="78dp"
         android:layout_margin="5dip"
         android:layout_weight="0.00"
-        android:background="#aaaaaa"
+        android:background="#f5f5f5"
         android:scrollbars="vertical"
         android:textColor="#000000"
         android:visibility="visible" />
-
-
-
-
-
-    <Button
-        android:id="@+id/BtnKillApli"
-        android:layout_width="match_parent"
+
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.06"
-        android:text="@string/label_killApli" />
+        android:layout_weight="0.02" >
+
+        <Button
+            android:id="@+id/BtnOcultarApli"
+            style="@style/ButtonText"
+            android:layout_width="146dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/greenbutton"
+            android:text="@string/label_ocultarApli" />
+
+        <Button
+            android:id="@+id/BtnKillApli"
+            style="@style/ButtonText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/redbutton"
+            android:text="@string/label_killApli" />
+
+    </LinearLayout>
 
 </LinearLayout>
