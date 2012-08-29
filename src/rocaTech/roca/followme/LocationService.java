@@ -56,6 +56,11 @@ public class LocationService extends Service implements LocationListener
 	//Obtenemos la hora actual
 	Calendar calendario;
 	
+
+	private static String cadenaLatitud;
+	private static String cadenaLongitud;
+	private static String cadenaTiempo;
+	
 	// BroadCastReceiver para obtener estados de la GUI
 	private BroadcastReceiver mReceiver;
 	
@@ -217,16 +222,19 @@ public class LocationService extends Service implements LocationListener
 	public void onProviderDisabled(String provider)
 	{
 		Log.d(TAG, "Provider disabled: " + provider);
+		comunicarProveedorPos("no");
 	}
 	
 	public void onProviderEnabled(String provider) 
 	{
 		Log.d(TAG, "Provider enabled: " + provider);
+		comunicarProveedorPos(provider);
 	}
 	
 	public void onStatusChanged(String provider, int status,Bundle extras)
 	{
 		Log.d(TAG, "Provider status changed: " + provider);
+		comunicarProveedorPos(provider);
 		
 	}
 	
@@ -304,6 +312,9 @@ public class LocationService extends Service implements LocationListener
 			String longitude = Double.toString(location.getLongitude());
 			String provider = location.getProvider();
 			
+			//Esta funcion convierte el valor de Latitud y Longitud en String con formato
+			CoordenadasDecimalToString(location.getLatitude(), location.getLongitude());
+			
 			Log.d(TAG, "en location.getProvider()");
 			
 			Time now = new Time();
@@ -329,10 +340,27 @@ public class LocationService extends Service implements LocationListener
 			
 			Log.d(TAG, "en createPosGeoMSN: creada: " + latitude + " - " + longitude);
 			
+			comunicarPosGeo();
+			
 			return builder;
 		}
 		
-
+		 public static void comunicarPosGeo()
+		 {
+		    	FollowMeActivity.set_lastPosGeo(cadenaLatitud, cadenaLongitud);
+		 }
+		 
+		 public static void comunicarTiempoUltimoMSN(int timeLastMSN)
+		 {
+			 cadenaTiempo = String.format("%00d", timeLastMSN);
+		    FollowMeActivity.set_timeLastMSN(cadenaTiempo);
+		 }
+		 
+		 public static void comunicarProveedorPos(String provider)
+		 {
+			 
+		    FollowMeActivity.set_proveedorPosGeo(provider);
+		 }
 
 	    //---sends an SMS message to another device---
 	    private void sendSMSMonitor(String phoneNumber, String message)
@@ -537,6 +565,8 @@ public class LocationService extends Service implements LocationListener
 	    	return IsBtnPanicoPulsado;
 	    }
 	    
+	   
+	    
 	  //******************************************************************
 		//		FUNCIONES DE ADMINISTRACION IMPRESION DATOS EN GUI
 		//
@@ -625,7 +655,8 @@ public class LocationService extends Service implements LocationListener
 	    	
 	        public void run()
 	        {
-	        	tiempoTranscurrido = tiempoTranscurrido + 1000;   
+	        	tiempoTranscurrido = tiempoTranscurrido + 1000;
+	        	
 	        	
 	        	if(IsBtnPanicoPulsado)
 	        	{
@@ -672,11 +703,71 @@ public class LocationService extends Service implements LocationListener
         			}
 	        	}
 				
-				
+				FollowMeActivity.set_timeLastMSN(Integer.toString(tiempoTranscurrido/1000));
 	    		Log.i("FollowYou", "Se repite ejecucion del HILO");
 		        mHandler.removeCallbacks(mMuestraMensaje);
 	           mHandler.postDelayed(mMuestraMensaje, 1000);
 	        } // fin run
 	      };// fin runnable mMuestraMensaje
+	      
+	      
+	      
+	      /**
+	 		* Funcion para convertir la Latitud/Longitud de formato numerico tipo double a formato texto tipo String
+	 		*
+	 		* Esta función recibe las variables de coordenadas  latitud/longitud con formato numerico tipo double  (grado y decima de grado) y las convierte 
+	 		* a variable texto tipo String (grado-minuto + decima de minuto-direccion)
+	 		*
+	 		* @param latitud		valor de la latitud en formato de grado y decimas de grado ejemplo 19.23454, que se va a transformar
+	 		* @param longitud		valor de la longitud en formato de grado y decimas de grado ejemplo -96.23454, que se va a transformar
+	 		* 
+	 		* @param &cadenaLatitud		variable String para almacenar el valor de la Latitud convertida con formato 19° 25.43' N
+	 		* @param &cadenaLongitud	variable String para almacenar el valor de la Longitud convertida con formato 19° 25.43' N
+	 		*/
+	 		private static void CoordenadasDecimalToString(double latitud, double longitud)
+	 		{
+	 			String tempEW;
+	 			String tempNS;
+
+
+	 			double minutos;
+	 			double grados;
+	 			double entero, dec;	
+
+	 			if (longitud<0)
+	 			{tempEW="W"; longitud = Math.abs(longitud);}
+	 			else
+	 			{tempEW="E";}
+	 			if (latitud<0)
+	 			{tempNS="S"; latitud = Math.abs(latitud);}
+	 			else
+	 			{tempNS="N";}
+	 			cadenaLatitud="";
+	 			cadenaLongitud="";
+	 			if(latitud< 90 || latitud > -90 ||longitud<180 || longitud > -180 )
+	 			{
+	 				dec = latitud - (entero = Math.floor(latitud));;
+	 				minutos = dec * 60;
+	 				grados = entero;
+	 				if(grados < 0) grados = grados * (-1);
+	 				if(minutos < 0) minutos = minutos * (-1);
+
+
+	 				//cadenaLatitud = System::Convert::ToString(grados) + " °  " + System::Convert::ToString(minutos) + "'  " + tempNS;
+	 				//cadenaLatitud = Double.toString(grados) + " °  " + Double.toString(minutos) + "'  " + tempNS;
+	 				cadenaLatitud = String.format("%2.0f", grados) + " °  " + String.format("%2.2f", minutos) + "'  " + tempNS;
+
+	 				dec = longitud - (entero = Math.floor(longitud));
+	 				minutos = dec * 60;
+	 				grados = entero;
+	 				if(grados < 0) grados = grados * (-1);
+	 				if(minutos < 0) minutos = minutos * (-1);
+	 				//cadenaLongitud = System::Convert::ToString(grados) + " °  " + System::Convert::ToString(minutos) + "'  "+ tempEW;
+	 				//cadenaLongitud = Double.toString(grados) + " °  " + Double.toString(minutos) + "'  " + tempEW;
+	 				cadenaLongitud = String.format("%3.0f", grados) + " °  " + String.format("%2.2f", minutos) + "'  " + tempEW;
+	 			}
+
+	 		}
+	    
 	      
 }// Fin clase LocationService

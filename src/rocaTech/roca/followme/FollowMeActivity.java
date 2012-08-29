@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import java.util.Calendar;
@@ -32,9 +33,15 @@ public class FollowMeActivity extends Activity
 	private static Button btnPanico;
 	private static Button btnPararApli;
 	private boolean IsBtnPanicoPulsado;
+	
+	private static TextView textEdadEnvio;
+	private static TextView textPosActual;
+	private static ImageView imgProvPosGeo;
 			
 	//Obtenemos la hora actual
 	Calendar calendario;
+	
+	
 	
     /** Called when the activity is first created. */
     @Override
@@ -57,6 +64,12 @@ public class FollowMeActivity extends Activity
         
         output = (TextView) findViewById(R.id.output);
     	output.setMovementMethod(new ScrollingMovementMethod());
+    	
+    	 textEdadEnvio = (TextView) findViewById(R.id.textEdadEnvio);
+    	 textPosActual = (TextView) findViewById(R.id.textPosActual);
+    	 imgProvPosGeo = (ImageView) findViewById(R.id.imageProvServPos);
+    	 
+    	 //set_proveedorPosGeo("noRecep");
     	
     	//log("Iniciando el Sistema de Posicion Geografica");
     
@@ -237,5 +250,54 @@ public class FollowMeActivity extends Activity
  	        }
  		}
  		
-    
+ 		
+ 		public static void set_timeLastMSN(String stringTiempo)
+ 		{
+ 			textEdadEnvio.setText(stringTiempo);
+ 		}
+ 		
+ 		public static void set_lastPosGeo(String lastLat, String lastLong)
+ 		{
+ 			
+ 			
+ 			textPosActual.setText(lastLat + "\n" + lastLong);
+ 		}
+ 		
+ 		public static void set_proveedorPosGeo(String prov)
+ 		{
+ 			
+ 			
+ 			if(prov.compareTo("gps") == 0)
+ 			{
+ 				
+ 			  imgProvPosGeo.setImageResource(R.drawable.gps);
+ 			}
+ 			else
+ 			{
+ 				
+ 				
+ 				if(prov.compareTo("passive") == 0)
+ 				{
+ 					
+ 					imgProvPosGeo.setImageResource(R.drawable.celular);
+ 				}
+ 				else
+ 				{
+ 					if(prov.compareTo("network") == 0)
+ 					{
+ 						
+ 						imgProvPosGeo.setImageResource(R.drawable.network);
+ 					}
+ 					else
+ 					{
+ 						imgProvPosGeo.setImageResource(R.drawable.no_recepcion);
+ 					}
+ 				}
+ 			}
+ 			
+ 			
+ 			
+ 		}
+ 		
+ 		
 }// Fin Activity
