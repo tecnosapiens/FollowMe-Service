@@ -294,9 +294,7 @@ public class FollowMeActivity extends Activity
  					}
  				}
  			}
- 			
- 			
- 			
+ 	
  		}
  		
  		
