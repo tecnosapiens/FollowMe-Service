@@ -22,18 +22,20 @@ public final class R {
     }
     public static final class drawable {
         public static final int celular=0x7f020000;
-        public static final int gps=0x7f020001;
-        public static final int greenbutton=0x7f020002;
-        public static final int ic_button_go=0x7f020003;
-        public static final int ic_button_stop=0x7f020004;
-        public static final int ic_launcher=0x7f020005;
-        public static final int ic_menu_database=0x7f020006;
-        public static final int ic_menu_dialog=0x7f020007;
-        public static final int ic_menu_exit=0x7f020008;
-        public static final int ic_menu_globe=0x7f020009;
-        public static final int network=0x7f02000a;
-        public static final int no_recepcion=0x7f02000b;
-        public static final int redbutton=0x7f02000c;
+        public static final int frame=0x7f020001;
+        public static final int framelayout=0x7f020002;
+        public static final int gps=0x7f020003;
+        public static final int greenbutton=0x7f020004;
+        public static final int ic_button_go=0x7f020005;
+        public static final int ic_button_stop=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int ic_menu_database=0x7f020008;
+        public static final int ic_menu_dialog=0x7f020009;
+        public static final int ic_menu_exit=0x7f02000a;
+        public static final int ic_menu_globe=0x7f02000b;
+        public static final int network=0x7f02000c;
+        public static final int no_recepcion=0x7f02000d;
+        public static final int redbutton=0x7f02000e;
     }
     public static final class id {
         public static final int BtnKillApli=0x7f0b0006;
@@ -65,6 +67,7 @@ public final class R {
         /**  Menu de Configuracion de Mensajes de registro de Servidores de Posicion 
          */
         public static final int configuracion_registro_servidores=0x7f080007;
+        public static final int geoserver=0x7f080016;
         public static final int hello=0x7f080000;
         public static final int label_edad_mensaje=0x7f080012;
         public static final int label_killApli=0x7f080010;

@@ -2,43 +2,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/frame"
     android:gravity="center_vertical"
     android:orientation="vertical" >
-
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_weight="0.08"
-        android:background="#2F4F4F" >
-
+        android:background="@drawable/framelayout" >
+
         <ImageView
             android:id="@+id/imageProvServPos"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_vertical|center_horizontal"
             android:layout_weight="1"
             android:adjustViewBounds="true"
+            android:contentDescription="@string/geoserver"
             android:scaleType="fitXY"
             android:src="@drawable/no_recepcion" />
-
+
         <TextView
             android:id="@+id/textEdadEnvio"
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|center"
             android:layout_weight="1"
+            android:background="@drawable/frame"
             android:gravity="center_vertical|center"
             android:text="@string/label_edad_mensaje"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
+
         <TextView
             android:id="@+id/textPosActual"
             android:layout_width="104dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="@drawable/frame"
             android:gravity="center_vertical|center"
             android:text="@string/label_posgeo_actual"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
     </LinearLayout>
 
     <ToggleButton
