@@ -32,6 +32,7 @@ public class FollowMeActivity extends Activity
 	private static TextView output;
 	private static Button btnPanico;
 	private static Button btnPararApli;
+	private static Button btnOcultarApli;
 	private boolean IsBtnPanicoPulsado;
 	
 	private static TextView textEdadEnvio;
@@ -125,6 +126,21 @@ public class FollowMeActivity extends Activity
 				
 			}
 		});
+    	
+    	
+    	btnOcultarApli = (Button) findViewById(id.BtnOcultarApli);
+    	
+    	btnOcultarApli.setOnClickListener(new View.OnClickListener() 
+    	{
+			
+			public void onClick(View v) {
+				
+				// Instruccion para matar el los procesos de la aplicacion	
+				OcultarAplicacion();
+				
+				
+			}
+		});
     }
     
     @Override
@@ -169,6 +185,13 @@ public class FollowMeActivity extends Activity
 		//TODO: ANTES DE EJECUTAR EL PARO DE LA APLICACION SE DEBE PEDIR CONTRASEÑA
 		stopServicioLocalizacion();
 		android.os.Process.killProcess(android.os.Process.myPid());
+	}
+	
+	private void OcultarAplicacion()
+	{
+		//TODO: ANTES DE EJECUTAR EL OCULTAMIENTO........
+		
+		onBackPressed();
 	}
 	
 	
