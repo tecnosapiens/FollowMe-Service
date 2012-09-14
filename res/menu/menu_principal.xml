@@ -6,6 +6,6 @@
 			  android:icon="@drawable/ic_menu_dialog"></item>
 		<item android:id="@+id/MenuServidores" android:title="Servidores"
 			  android:icon="@drawable/ic_menu_globe"></item>
-		<item android:id="@+id/MenuServicios" android:title="Servicios"
+		<item android:id="@+id/MenuServicios" android:title="Aplicacion"
 			  android:icon="@drawable/ic_menu_database"></item>
     </menu>

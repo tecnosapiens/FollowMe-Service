@@ -249,7 +249,7 @@ public class FollowMeActivity extends Activity
 		    	startActivity(new Intent(this, Pref_ServidoresPosicion.class));
 		    return true;
 		    case R.id.MenuServicios:
-		   // menu de opcion 3 pulsada
+		    	startActivity(new Intent(this, Pref_Aplicacion.class));
 		    return true;
 		    default:
 		    return super.onOptionsItemSelected(item);

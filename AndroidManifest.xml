@@ -27,6 +27,8 @@
         <service android:enabled="true" android:name=".LocationService"></service>
         <activity android:name=".Pref_ServidoresPosicion" android:label="@string/configuracion_registro_servidores"></activity>
         <activity android:name=".Pref_MensajesPosicion" android:label="@string/configuracion_envio_mensajes"></activity>
+        <activity android:name=".Pref_Aplicacion" android:label="@string/configuracion_preferencias_aplicacion"></activity>
+        
         
     </application>
 

@@ -41,6 +41,7 @@ public class LocationService extends Service implements LocationListener
 	private LocationManager mgr;
 	private String best;
 	
+	private String aliasAplicacion;
 	private String[] servidores;
 	public String message;
 	
@@ -91,6 +92,7 @@ public class LocationService extends Service implements LocationListener
 		//Toast.makeText(this, "My Service Created", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onCreate LocationService");
 		
+		aliasAplicacion = "alias1";
 		tiempoEnvioMensajePanico = 1000; //en miisegundos
 		tiempoEnvioMensajeNoPanico = 5000; //en milisegundos
 		distanciaActualizacionPosicion = 300; //en metros
@@ -323,7 +325,7 @@ public class LocationService extends Service implements LocationListener
 	    	Log.d(TAG, "en Time: now.setToNow()");
 	    	
 			StringBuilder builder = new StringBuilder();
-			builder.append("$+id")
+			builder.append("$" + aliasAplicacion)
 			.append(",")
 			.append(tipoMensaje)
 			.append(",")
@@ -554,10 +556,15 @@ public class LocationService extends Service implements LocationListener
 		  	servidores = new String[3];
 		  	servidores[0] = new String(sharedPrefs.getString("servidor1", "-1"));
 		  	
+		  	aliasAplicacion = sharedPrefs.getString("alias_apliacion", "alias1");
+		  	
 		  	Log.d(TAG, "Preferencias Usuario: " + Integer.toString(tiempoEnvioMensajeNoPanico) + "->" + 
 		  							Integer.toString(tiempoEnvioMensajePanico) + "->" +
 		  							Boolean.toString(IsenviarMensajeNoPanico) + "->" +
-		  							servidores[0]);
+		  							servidores[0]+ "->" +
+		  							aliasAplicacion);
+		  	
+		  	//FollowMeActivity.log("Alias Apliacion: " + aliasAplicacion);
 	    }
 
 	    public static boolean get_EstadoPanico()

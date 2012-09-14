@@ -64,6 +64,7 @@ public final class R {
   Menu de Configuracion de Mensajes de Posicion 
          */
         public static final int configuracion_envio_mensajes=0x7f080002;
+        public static final int configuracion_preferencias_aplicacion=0x7f080017;
         /**  Menu de Configuracion de Mensajes de registro de Servidores de Posicion 
          */
         public static final int configuracion_registro_servidores=0x7f080007;
@@ -92,7 +93,8 @@ public final class R {
         public static final int ButtonText=0x7f090000;
     }
     public static final class xml {
-        public static final int prefmensajes=0x7f040000;
-        public static final int prefservidores=0x7f040001;
+        public static final int prefaplicacion=0x7f040000;
+        public static final int prefmensajes=0x7f040001;
+        public static final int prefservidores=0x7f040002;
     }
 }

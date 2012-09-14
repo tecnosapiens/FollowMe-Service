@@ -12,6 +12,7 @@
 	            android:dialogTitle="Alta Servidor Posicion"
 	            android:dialogMessage="Numero Servidor Uno"   
 	            android:defaultValue="" />
+	        
 	 
 	    </PreferenceCategory>
 

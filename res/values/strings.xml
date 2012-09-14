@@ -48,6 +48,7 @@
     <item name="android:shadowRadius">2</item>
 </style>
     <string name="geoserver">GeoServer</string>
+    <string name="configuracion_preferencias_aplicacion">Preferencias de Aplicacion</string>
     
     
 </resources>
