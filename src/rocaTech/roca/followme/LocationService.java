@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -34,7 +35,13 @@ import android.util.Log;
 //import android.widget.Toast;
 //import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
+import java.net.Socket;
 
+import rocaTech.roca.followme.Mensaje_data;
 
 public class LocationService extends Service implements LocationListener
 {
@@ -72,6 +79,17 @@ public class LocationService extends Service implements LocationListener
 	boolean enConteo;
 	Handler mHandler;
 	int tiempoTranscurrido; //conteo de tiempo en segundos
+	
+	
+	/****************************************************************************
+		 *     VARIABLES DE CONECCION POR SOCKET
+		 */
+		
+		Socket miCliente;
+		private boolean connected = false;
+		ObjectOutputStream oos;
+		ObjectInputStream ois;
+		Mensaje_data mdata;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -428,6 +446,25 @@ public class LocationService extends Service implements LocationListener
 	        SmsManager sms = SmsManager.getDefault();
 	        //sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI); 
 	        sms.sendTextMessage(phoneNumber, null, message, null, null); 
+	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje por SMS");
+	        
+	        //******* PRUEBAS ENVIO DE MENSAJE POR SOCKET ********
+	        Log.d(TAG, "CONECTANDO SOCKET");
+	       connected = Connect();
+	       if(connected)
+	       {
+	    	   Snd_txt_Msg(message);
+	    	   Log.d(TAG, "en sendSMSMonitor: se envio mensaje por Socket");
+	    	   Disconnect();
+	    	   connected = false;
+	       }
+	       else
+	       {
+	    	   Log.d(TAG, "dESCONECTANDO SOCKET");
+	    	   FollowMeActivity.log(" ERROR: Desconect Socket");
+	       }
+	       //Disconnect();
+	       Log.d(TAG, "dESCONECTANDO SOCKET");
 	        //FollowMeActivity.log("SMS enviado en funcion de envio de mensaje");
 	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje");
 	    }
@@ -777,4 +814,157 @@ public class LocationService extends Service implements LocationListener
 	 		}
 	    
 	      
+	 		/****************************************************************************
+	 		 *     FUNCIONES DE CONECCION POR SOCKET
+	 		 */
+	 		
+	 		
+	 		
+	 		//Conectamos
+	 		public boolean Connect() 
+	 		{
+	 			Log.d("TAG","CONECCION DEL SOCKECT");
+	 			//Obtengo datos ingresados en campos
+	 			String IP = "192.168.110.1";
+	 			int PORT = 5555;
+
+	 			try {//creamos sockets con los valores anteriores
+	 				miCliente = new Socket(IP, PORT);
+	 				//si nos conectamos
+	 				if (miCliente.isConnected() == true) {
+	 					return true;
+	 				} else {
+	 					return false;
+	 				}
+	 			} catch (Exception e) {
+	 				//Si hubo algun error mostrmos error
+	 				
+	 				FollowMeActivity.log("ERROR CONECT SOCKET");
+	 				Log.d("TAG","Error connect() = " + e);
+	 				Log.e("Error connect()", "" + e);
+	 				return false;
+	 			}
+	 		}
+
+	 		//Metodo de desconexion
+	 		public void Disconnect()
+	 		{
+	 			try {
+	 				//Prepramos mensaje de desconexion
+	 				Mensaje_data msgact = new Mensaje_data();
+	 				msgact.texto = "";
+	 				msgact.Action = -1;
+	 				msgact.last_msg = true;
+	 				//avisamos al server que cierre el canal
+	 				boolean val_acc = Snd_Msg(msgact);
+
+	 				if (!val_acc) {//hubo un error
+	 					FollowMeActivity.log(" ERROR: Desconect Socket");
+	 					
+	 					Log.e("Disconnect() -> ", "!ERROR!");
+
+	 				} else {//ok nos desconectamos
+	 					FollowMeActivity.log("Sockect Desconectado");
+	 					//camibmos led a rojo
+	 					
+	 					Log.e("Disconnect() -> ", "!ok!");
+	 					//cerramos socket	
+	 					miCliente.close();
+	 				}
+	 			} catch (IOException e) {
+	 				// TODO Auto-generated catch block
+	 				e.printStackTrace();
+	 			}
+
+	 			if (!miCliente.isConnected())
+	 			{
+	 				FollowMeActivity.log("Socket deconectado");
+	 			}
+	 				//Change_leds(false);
+	 		}
+
+	 		//Enviamos mensaje de accion segun el boton q presionamos
+	 		public void Snd_Action(int bt) 
+	 		{
+	 			Mensaje_data msgact = new Mensaje_data();
+	 			//no hay texto
+	 			msgact.texto = "";
+	 			//seteo en el valor action el numero de accion
+	 			msgact.Action = bt;
+	 			//no es el ultimo msg
+	 			msgact.last_msg = false;
+	 			//mando msg
+	 			boolean val_acc = Snd_Msg(msgact);
+	 			//error al enviar
+	 			if (!val_acc) {
+	 				FollowMeActivity.log(" ERROR: Desconect Socket");
+	 				
+	 				Log.e("Snd_Action() -> ", "!ERROR!");
+
+	 			}
+
+	 			if (!miCliente.isConnected())
+	 			{
+	 				FollowMeActivity.log("Socket deconectado");
+	 			}
+	 		}
+
+	 		//Envio mensaje de texto 
+	 		public void Snd_txt_Msg(String txt) 
+	 		{
+
+	 			Mensaje_data mensaje = new Mensaje_data();
+	 			//seteo en texto el parametro  recibido por txt
+	 			mensaje.texto = txt;
+	 			//action -1 no es mensaje de accion
+	 			mensaje.Action = -1;
+	 			//no es el ultimo msg
+	 			mensaje.last_msg = false;
+	 			//mando msg
+	 			boolean val_acc = Snd_Msg(mensaje);
+	 			//error al enviar
+	 			if (!val_acc) {
+	 				FollowMeActivity.log(" ERROR: Desconect Socket");
+	 				Log.e("Snd_txt_Msg() -> ", "!ERROR!");
+	 			}
+	 			if (!miCliente.isConnected())
+	 			{
+	 				FollowMeActivity.log("Socket deconectado");
+	 			}
+	 		}
+	 		
+	 		/*Metodo para enviar mensaje por socket
+	 		 *recibe como parmetro un objeto Mensaje_data
+	 		 *retorna boolean segun si se pudo establecer o no la conexion
+	 		 */
+	 		public boolean Snd_Msg(Mensaje_data msg) 
+	 		{
+
+	 			try {
+	 				//Accedo a flujo de salida
+	 				oos = new ObjectOutputStream(miCliente.getOutputStream());
+	 				//creo objeto mensaje
+	 				Mensaje_data mensaje = new Mensaje_data();
+
+	 				if (miCliente.isConnected())// si la conexion continua
+	 				{
+	 					//lo asocio al mensaje recibido
+	 					mensaje = msg;
+	 					//Envio mensaje por flujo
+	 					oos.writeObject(mensaje);
+	 					//envio ok
+	 					return true;
+
+	 				} else {//en caso de que no halla conexion al enviar el msg
+	 					FollowMeActivity.log(" ERROR: Desconect Socket");
+	 					return false;
+	 				}
+
+	 			} catch (IOException e) {// hubo algun error
+	 				Log.e("Snd_Msg() ERROR -> ", "" + e);
+
+	 				return false;
+	 			}
+	 		}
+	 	
 }// Fin clase LocationService
