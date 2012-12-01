@@ -1,4 +1,4 @@
-package rocaTech.roca.followme;
+package test.Sockettest;
 
 import java.io.Serializable;
 

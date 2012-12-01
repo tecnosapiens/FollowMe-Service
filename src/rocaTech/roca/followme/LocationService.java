@@ -41,7 +41,7 @@ import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
 
-import rocaTech.roca.followme.Mensaje_data;
+import test.Sockettest.*;
 
 public class LocationService extends Service implements LocationListener
 {
@@ -56,6 +56,10 @@ public class LocationService extends Service implements LocationListener
 	int tiempoEnvioMensajeNoPanico;
 	boolean IsenviarMensajeNoPanico;
 	int distanciaActualizacionPosicion;
+	
+	private String IPServidor;
+	private int puertoIPServidor;
+	
 	
 	
 	private static boolean IsBtnPanicoPulsado;
@@ -158,6 +162,7 @@ public class LocationService extends Service implements LocationListener
 	        };
 	        //registering our receiver
 	        this.registerReceiver(mReceiver, intentFilter);
+	      
 		
 		
 		
@@ -170,6 +175,7 @@ public class LocationService extends Service implements LocationListener
 	public void onDestroy() {
 		//Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onDestroy");
+		Disconnect();
 		//player.stop();
 		mgr.removeUpdates(this);
 		
@@ -177,6 +183,8 @@ public class LocationService extends Service implements LocationListener
 	    {
 	    	   mHandler.removeCallbacks(mMuestraMensaje);
 	    }
+		
+		
 	}
 	
 	@Override
@@ -187,6 +195,30 @@ public class LocationService extends Service implements LocationListener
 		FollowMeActivity.log("Inicio Servicio Localizacion");
 		get_PreferenciasUsuario();
 		iniciarHiloConteoTiempo();
+		
+		//***************
+		//*** Apertura del socket de red 
+		if(IPServidor != "-1")
+		{
+		 try
+	       {
+	        Log.d(TAG, "CONECTANDO SOCKET");
+		    connected = Connect();
+		    if(connected)
+		       {
+		    	   Snd_txt_Msg("Inicio de la com por socket");
+		    	   Log.d(TAG, "en sendSMSMonitor: se envio mensaje por Socket");
+		    	   
+		       }
+	       }catch(Exception e)
+	       {
+	    	   Log.d("TAG", "Error al abrir el socket dentro excepcion");
+	       }
+		}
+		else
+		{
+			FollowMeActivity.log("No hay IP configurada");
+		}
 		//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 		//player.start();
 		
@@ -449,22 +481,27 @@ public class LocationService extends Service implements LocationListener
 	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje por SMS");
 	        
 	        //******* PRUEBAS ENVIO DE MENSAJE POR SOCKET ********
-	        Log.d(TAG, "CONECTANDO SOCKET");
-	       connected = Connect();
-	       if(connected)
-	       {
-	    	   Snd_txt_Msg(message);
-	    	   Log.d(TAG, "en sendSMSMonitor: se envio mensaje por Socket");
-	    	   Disconnect();
-	    	   connected = false;
-	       }
-	       else
-	       {
-	    	   Log.d(TAG, "dESCONECTANDO SOCKET");
-	    	   FollowMeActivity.log(" ERROR: Desconect Socket");
-	       }
+	      // try
+	       //{
+		       if(connected)
+		       {
+		    	   Snd_txt_Msg(message);
+		    	   Log.d(TAG, "en sendSMSMonitor: se envio mensaje por Socket");
+		    	   
+		       }
+		       else
+		       {
+		    	   Log.d(TAG, "dESCONECTANDO SOCKET");
+		    	   FollowMeActivity.log(" ERROR: Socket Desconectado");
+		       }
+//	       }catch(ClassNotFoundException e) // hubo algun error
+//	       {
+//				Log.d("Snd_Msg() ERROR -> ", "" + e);
+//				FollowMeActivity.log(" ERROR: No se pudo enviar Socket");
+//
+//			}
 	       //Disconnect();
-	       Log.d(TAG, "dESCONECTANDO SOCKET");
+	       //Log.d(TAG, "dESCONECTANDO SOCKET");
 	        //FollowMeActivity.log("SMS enviado en funcion de envio de mensaje");
 	        Log.d(TAG, "en sendSMSMonitor: se envio mensaje");
 	    }
@@ -592,6 +629,9 @@ public class LocationService extends Service implements LocationListener
 		  	
 		  	servidores = new String[3];
 		  	servidores[0] = new String(sharedPrefs.getString("servidor1", "-1"));
+		  	
+		  	IPServidor = new String(sharedPrefs.getString("servidorTCP1", "-1"));
+		  	puertoIPServidor = Integer.parseInt(sharedPrefs.getString("puertoTCP1", "5555"));
 		  	
 		  	aliasAplicacion = sharedPrefs.getString("alias_apliacion", "alias1");
 		  	
@@ -825,8 +865,8 @@ public class LocationService extends Service implements LocationListener
 	 		{
 	 			Log.d("TAG","CONECCION DEL SOCKECT");
 	 			//Obtengo datos ingresados en campos
-	 			String IP = "192.168.110.1";
-	 			int PORT = 5555;
+	 			String IP = IPServidor;//"192.168.2.110";
+	 			int PORT = puertoIPServidor;//5555
 
 	 			try {//creamos sockets con los valores anteriores
 	 				miCliente = new Socket(IP, PORT);
@@ -962,6 +1002,7 @@ public class LocationService extends Service implements LocationListener
 
 	 			} catch (IOException e) {// hubo algun error
 	 				Log.e("Snd_Msg() ERROR -> ", "" + e);
+	 				FollowMeActivity.log(" ERROR: No se pudo enviar Socket");
 
 	 				return false;
 	 			}

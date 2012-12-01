@@ -16,5 +16,26 @@
 	 
 	    </PreferenceCategory>
 
-
+<PreferenceCategory
+	        android:title="Alta Servidor TCP-IP"
+	        android:key="primer_servidor">
+	 
+	        <EditTextPreference
+	            android:key="servidorTCP1"
+	            android:title="Alta Servidor TCP 1"
+	            android:summary="Ingrese IP Servidor1 TCP"
+	            android:dialogTitle="Alta Servidor Posicion TCP"
+	            android:dialogMessage="IP Servidor Uno TCP"   
+	            android:defaultValue="" />
+	        
+	        <EditTextPreference
+	            android:key="puertoTCP1"
+	            android:title="Alta Puerto TCP 1"
+	            android:summary="Ingrese Puerto Servidor1 TCP"
+	            android:dialogTitle="Alta Puerto Posicion TCP"
+	            android:dialogMessage="Puerto Servidor Uno TCP"   
+	            android:defaultValue="" />
+	        
+	 
+	    </PreferenceCategory>
 	</PreferenceScreen>
