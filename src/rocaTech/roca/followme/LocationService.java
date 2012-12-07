@@ -40,6 +40,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 import test.Sockettest.*;
 
@@ -59,6 +61,7 @@ public class LocationService extends Service implements LocationListener
 	
 	private String IPServidor;
 	private int puertoIPServidor;
+	private boolean cambioConfConeccionIP;
 	
 	
 	
@@ -122,6 +125,8 @@ public class LocationService extends Service implements LocationListener
 		servidores = new String[3];
 	  	servidores[0] = new String("5556");
 	  	message = "-1";
+	  	
+	  	cambioConfConeccionIP = false;
 	  	
 		get_PreferenciasUsuario();
 		subscribeToLocationUpdates();
@@ -194,34 +199,16 @@ public class LocationService extends Service implements LocationListener
 		//se leen las preferencias del usuario
 		FollowMeActivity.log("Inicio Servicio Localizacion");
 		get_PreferenciasUsuario();
-		iniciarHiloConteoTiempo();
 		
-		//***************
-		//*** Apertura del socket de red 
-		if(IPServidor != "-1")
+		
+		if(!connected)
 		{
-		 try
-	       {
-	        Log.d(TAG, "CONECTANDO SOCKET");
-		    connected = Connect();
-		    if(connected)
-		       {
-		    	   Snd_txt_Msg("Inicio de la com por socket");
-		    	   Log.d(TAG, "en sendSMSMonitor: se envio mensaje por Socket");
-		    	   
-		       }
-	       }catch(Exception e)
-	       {
-	    	   Log.d("TAG", "Error al abrir el socket dentro excepcion");
-	       }
+		   conectarServidorIP();
 		}
-		else
-		{
-			FollowMeActivity.log("No hay IP configurada");
-		}
+		
 		//mgr = (LocationManager) getSystemService(LOCATION_SERVICE);
 		//player.start();
-		
+		iniciarHiloConteoTiempo();
 		Log.d(TAG, "onStart");
 	}
 
@@ -630,8 +617,20 @@ public class LocationService extends Service implements LocationListener
 		  	servidores = new String[3];
 		  	servidores[0] = new String(sharedPrefs.getString("servidor1", "-1"));
 		  	
+		  	//String IPServidorAnt = IPServidor;
+			//int puertoIPServidorAnt = puertoIPServidor;
+			
 		  	IPServidor = new String(sharedPrefs.getString("servidorTCP1", "-1"));
 		  	puertoIPServidor = Integer.parseInt(sharedPrefs.getString("puertoTCP1", "5555"));
+		  	
+//		  	if(IPServidorAnt != IPServidor || puertoIPServidorAnt != puertoIPServidor)
+//		  	{
+//		  		
+//		  		conectarServidorIP();
+//		  		
+//		  	}
+		  	
+		  	
 		  	
 		  	aliasAplicacion = sharedPrefs.getString("alias_apliacion", "alias1");
 		  	
@@ -858,7 +857,43 @@ public class LocationService extends Service implements LocationListener
 	 		 *     FUNCIONES DE CONECCION POR SOCKET
 	 		 */
 	 		
-	 		
+	 		public void conectarServidorIP()
+	 		{
+	 			
+	 			if(connected)
+	 			{
+	 				Disconnect();
+	 				
+	 			}
+	 			
+	 			//***************
+	 			//*** Apertura del socket de red 
+	 			if(IPServidor != "-1")
+	 			{
+	 			 try
+	 		       {
+	 		        Log.d(TAG, "CONECTANDO SOCKET");
+	 			    connected = Connect();
+	 			    if(connected)
+	 			       {
+	 			    	   Snd_txt_Msg("Inicio de la com por socket");
+	 			    	   Log.d(TAG, "en sendSMSMonitor: se envio mensaje por Socket");
+	 			    	   
+	 			       }
+	 			    else
+	 			    {
+	 			    	FollowMeActivity.log("No hay conexion con IP configurada");
+	 			    }
+	 		       }catch(Exception e)
+	 		       {
+	 		    	   Log.d("TAG", "Error al abrir el socket dentro excepcion");
+	 		       }
+	 			}
+	 			else
+	 			{
+	 				FollowMeActivity.log("No hay IP configurada");
+	 			}
+	 		}
 	 		
 	 		//Conectamos
 	 		public boolean Connect() 
@@ -867,9 +902,15 @@ public class LocationService extends Service implements LocationListener
 	 			//Obtengo datos ingresados en campos
 	 			String IP = IPServidor;//"192.168.2.110";
 	 			int PORT = puertoIPServidor;//5555
+	 			
+	 			 SocketAddress socketAddressServer = new InetSocketAddress(IP, PORT);
+	 			
 
 	 			try {//creamos sockets con los valores anteriores
-	 				miCliente = new Socket(IP, PORT);
+	 				//miCliente = new Socket(IP, PORT);
+	 				miCliente = new Socket();
+	 				
+	 				miCliente.connect(socketAddressServer, 5000);
 	 				//si nos conectamos
 	 				if (miCliente.isConnected() == true) {
 	 					return true;
@@ -910,6 +951,7 @@ public class LocationService extends Service implements LocationListener
 	 					Log.e("Disconnect() -> ", "!ok!");
 	 					//cerramos socket	
 	 					miCliente.close();
+	 					connected = false;
 	 				}
 	 			} catch (IOException e) {
 	 				// TODO Auto-generated catch block
